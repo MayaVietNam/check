@@ -7,8 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
- 
- <style>
+  <style>
     html, body { height: 100%; margin: 0; padding: 0; min-height: 100vh; }
     body {
       background: #e5eefb; min-height: 100vh; position: relative; box-sizing: border-box; overflow-x: hidden;
@@ -48,118 +47,113 @@
     <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo">
   </div>
 
-  <div class="form-container max-w-3xl mx-auto mt-6">
-    <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-widest uppercase">
-      ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI
-      <br>
-      <span class="text-lg font-bold label-en uppercase">WIFI DEVICE RENTAL REGISTRATION FORM</span>
-    </h1>
-    <p class="text-blue-900 text-center mb-8 font-medium">
-      Vui lòng điền thông tin người thuê thiết bị Wi-Fi dưới đây. Quý khách có thể thêm nhiều đơn đăng ký cùng lúc.
-      <span class="label-en">
-        Please fill in the Wi-Fi device rental information below. You can add multiple requests at once.
-      </span>
-    </p>
-
-    <!-- Rental Requests Container -->
-    <div id="rental-requests-container" class="space-y-8 mb-8"></div>
-    <div class="flex justify-center mb-8">
-      <button id="add-request-btn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 text-md">
-        + Thêm đơn đăng ký mới
-        <span class="label-en text-white/90">+ Add new rental request</span>
-      </button>
-    </div>
-
-    <h2 class="text-2xl font-semibold text-blue-800 mb-6 border-b pb-3">
-      Thông tin liên hệ của người gửi yêu cầu
-      <span class="label-en">Contact information of the requester</span>
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div>
-        <label for="sender-name" class="block text-blue-800 text-sm font-semibold mb-2">
-          Họ và tên <span class="label-en">Full Name</span>
-        </label>
-        <input type="text" id="sender-name" name="sender-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Họ và tên của bạn / Your full name" required>
-      </div>
-      <div>
-        <label for="sender-email" class="block text-blue-800 text-sm font-semibold mb-2">
-          Email <span class="label-en">Email</span>
-        </label>
-        <input type="email" id="sender-email" name="sender-email" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="email@congty.com / email@company.com" required>
-      </div>
-      <div>
-        <label for="sender-phone" class="block text-blue-800 text-sm font-semibold mb-2">
-          Số điện thoại <span class="label-en">Phone Number</span>
-        </label>
-        <input type="tel" id="sender-phone" name="sender-phone" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Số điện thoại của bạn / Your phone number">
-      </div>
-      <div>
-        <label for="company-name" class="block text-blue-800 text-sm font-semibold mb-2">
-          Tên công ty <span class="label-en">Company Name</span>
-        </label>
-        <input type="text" id="company-name" name="company-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Tên công ty của bạn / Your company">
-      </div>
-      <div>
-        <label for="region" class="block text-blue-800 text-sm font-semibold mb-2">
-          Khu vực <span class="label-en">Region</span>
-        </label>
-        <select id="region" name="region" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          <option value="">-- Chọn khu vực / Select region --</option>
-          <option value="HNO">HNO</option>
-          <option value="HQ">HQ</option>
-        </select>
-      </div>
-      <div>
-        <label for="tax-code" class="block text-blue-800 text-sm font-semibold mb-2">
-          Mã số thuế <span class="label-en">Tax Code</span>
-        </label>
-        <input type="text" id="tax-code" name="tax-code" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Mã số thuế công ty / Company tax code">
-      </div>
-    </div>
-    <!-- reCAPTCHA -->
-    <div class="flex justify-center mb-6">
-      <div id="recaptcha-container" class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
-    </div>
-    <div class="flex justify-center">
-      <button id="submit-form-btn" type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center gap-2">
-        <span id="submit-text">
-          Gửi Yêu Cầu
-          <span class="label-en text-white/90">Submit Request</span>
+  <main>
+    <div class="form-container max-w-3xl mx-auto mt-6">
+      <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-widest uppercase">
+        ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI
+        <br>
+        <span class="text-lg font-bold label-en uppercase">WIFI DEVICE RENTAL REGISTRATION FORM</span>
+      </h1>
+      <p class="text-blue-900 text-center mb-8 font-medium">
+        Vui lòng điền thông tin người thuê thiết bị Wi-Fi dưới đây. Quý khách có thể thêm nhiều đơn đăng ký cùng lúc.
+        <span class="label-en">
+          Please fill in the Wi-Fi device rental information below. You can add multiple requests at once.
         </span>
-        <span id="loading-spinner" class="hidden inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
-      </button>
+      </p>
+      <form id="wifi-form" autocomplete="on" novalidate>
+        <!-- Rental Requests Container -->
+        <div id="rental-requests-container" class="space-y-8 mb-8"></div>
+        <div class="flex justify-center mb-8">
+          <button id="add-request-btn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 text-md">
+            + Thêm đơn đăng ký mới
+            <span class="label-en text-white/90">+ Add new rental request</span>
+          </button>
+        </div>
+        <h2 class="text-2xl font-semibold text-blue-800 mb-6 border-b pb-3">
+          Thông tin liên hệ của người gửi yêu cầu
+          <span class="label-en">Contact information of the requester</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <label for="sender-name" class="block text-blue-800 text-sm font-semibold mb-2">
+              Họ và tên <span class="label-en">Full Name</span>
+            </label>
+            <input type="text" id="sender-name" name="sender-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Họ và tên của bạn / Your full name" required>
+          </div>
+          <div>
+            <label for="sender-email" class="block text-blue-800 text-sm font-semibold mb-2">
+              Email <span class="label-en">Email</span>
+            </label>
+            <input type="email" id="sender-email" name="sender-email" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="email@congty.com / email@company.com" required>
+          </div>
+          <div>
+            <label for="sender-phone" class="block text-blue-800 text-sm font-semibold mb-2">
+              Số điện thoại <span class="label-en">Phone Number</span>
+            </label>
+            <input type="tel" id="sender-phone" name="sender-phone" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Số điện thoại của bạn / Your phone number">
+          </div>
+          <div>
+            <label for="company-name" class="block text-blue-800 text-sm font-semibold mb-2">
+              Tên công ty <span class="label-en">Company Name</span>
+            </label>
+            <input type="text" id="company-name" name="company-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Tên công ty của bạn / Your company">
+          </div>
+          <div>
+            <label for="region" class="block text-blue-800 text-sm font-semibold mb-2">
+              Khu vực <span class="label-en">Region</span>
+            </label>
+            <select id="region" name="region" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+              <option value="">-- Chọn khu vực / Select region --</option>
+              <option value="HNO">HNO</option>
+              <option value="HQ">HQ</option>
+            </select>
+          </div>
+          <div>
+            <label for="tax-code" class="block text-blue-800 text-sm font-semibold mb-2">
+              Mã số thuế <span class="label-en">Tax Code</span>
+            </label>
+            <input type="text" id="tax-code" name="tax-code" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Mã số thuế công ty / Company tax code">
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <button id="submit-form-btn" type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center gap-2">
+            <span id="submit-text">
+              Gửi Yêu Cầu
+              <span class="label-en text-white/90">Submit Request</span>
+            </span>
+            <span id="loading-spinner" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+          </button>
+        </div>
+      </form>
     </div>
-  </div>
-
-  <div class="company-info max-w-3xl mx-auto">
-    <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
-    <div class="en"><b>MAYA VIETNAM CO., LTD</b></div>
-    <div class="line">
-      <span class="label">ĐỊA CHỈ / ADDRESS:</span>
-      PHÒNG 1630, TẦNG 16, DAEHA BUSINESS CENTER, 360 KIM MÃ, NGỌC KHÁNH, BA ĐÌNH, HÀ NỘI.<br>
-      <span class="label-en">ROOM 1630, 16TH FLOOR, DAEHA BUSINESS CENTER, 360 KIM MA, NGOC KHANH, BA DINH, HANOI.</span>
+  </main>
+  <footer>
+    <div class="company-info max-w-3xl mx-auto">
+      <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
+      <div class="en"><b>MAYA VIETNAM CO., LTD</b></div>
+      <div class="line">
+        <span class="label">ĐỊA CHỈ / ADDRESS:</span>
+        PHÒNG 1630, TẦNG 16, DAEHA BUSINESS CENTER, 360 KIM MÃ, NGỌC KHÁNH, BA ĐÌNH, HÀ NỘI.<br>
+        <span class="label-en">ROOM 1630, 16TH FLOOR, DAEHA BUSINESS CENTER, 360 KIM MA, NGOC KHANH, BA DINH, HANOI.</span>
+      </div>
+      <div class="line">
+        <span class="label">HOTLINE (VIETNAMESE):</span>
+        0962 000 650 &nbsp;&nbsp;&nbsp;
+        <span class="label">HOTLINE (JAPANESE):</span>
+        0365 399 288
+      </div>
+      <div style="color:#2563eb; font-size:0.97em; margin-top:0.5em;">
+        For support in English or Japanese, please contact the above numbers.
+      </div>
     </div>
-    <div class="line">
-      <span class="label">HOTLINE (VIETNAMESE):</span>
-      0962 000 650 &nbsp;&nbsp;&nbsp;
-      <span class="label">HOTLINE (JAPANESE):</span>
-      0365 399 288
-    </div>
-    <div style="color:#2563eb; font-size:0.97em; margin-top:0.5em;">
-      For support in English or Japanese, please contact the above numbers.
-    </div>
-  </div>
-
+  </footer>
   <script>
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWhgz1DeGxE7VOidlL3i2c5cTtuPJRlJqZQhvlMPi7mHeh8uIBYZuB5RqMSUtXkNUJbA/exec';
-    // For demo replace with your own reCAPTCHA site key
-    const RECAPTCHA_SITE_KEY = 'YOUR_RECAPTCHA_SITE_KEY';
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyI2USiL6G-IumKLC4P4w1zJ2hELpUX8NJ5TPMAoR2AKIwtvtd100Q074PQLlAY74MLlg/exec';
 
-    // Helper for SweetAlert2 loading
+    // SweetAlert2 loading
     function swalLoading() {
       Swal.fire({
         title: 'Đang gửi yêu cầu...',
-        html: '<div class="flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500"></div></div>',
         allowOutsideClick: false,
         showConfirmButton: false,
         didOpen: () => {
@@ -168,7 +162,7 @@
       });
     }
 
-    // Helper for SweetAlert2 thank you
+    // SweetAlert2 thank you (KHÔNG chuyển trang)
     function swalThankYou() {
       Swal.fire({
         icon: 'success',
@@ -178,23 +172,18 @@
           Xin trân trọng cảm ơn Quý khách!<br>
           <span class="label-en">Your request has been successfully submitted!<br>Thank you very much!</span>
         </div>`,
-        confirmButtonText: 'Trở về trang chủ / Back to Home',
+        confirmButtonText: 'Đóng',
         customClass: { popup: 'px-4 py-8' }
-      }).then(() => {
-        window.location.href = '/thank-you.html';
       });
     }
 
-    // Email validation
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
-    // Phone: only numbers (allow leading +, 8-15 digits)
     function isValidPhone(phone) {
       return /^(\+?\d{8,15})?$/.test(phone);
     }
 
-    // Save to localStorage
     function saveLocalContact() {
       localStorage.setItem('wifi_rental_email', document.getElementById('sender-email').value);
       localStorage.setItem('wifi_rental_phone', document.getElementById('sender-phone').value);
@@ -206,12 +195,11 @@
       if (phone) document.getElementById('sender-phone').value = phone;
     }
 
-    // Form logic
     let requestCounter = 0;
     function createRentalRequestSection() {
       requestCounter++;
       const rentalRequestsContainer = document.getElementById('rental-requests-container');
-      const section = document.createElement('div');
+      const section = document.createElement('section');
       section.className = 'bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-200';
       section.id = `request-${requestCounter}`;
       section.innerHTML = `
@@ -267,7 +255,6 @@
           </div>
         </div>
       `;
-      // Sự kiện xóa đơn
       const removeBtn = section.querySelector('.remove-request-btn');
       if (removeBtn) removeBtn.addEventListener('click', () => {
         section.remove(); updateSectionNumbers();
@@ -275,7 +262,7 @@
       rentalRequestsContainer.appendChild(section);
     }
     function updateSectionNumbers() {
-      const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6');
+      const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg');
       sections.forEach((section, idx) => {
         const num = idx + 1;
         section.querySelector('h2').innerHTML = `Đơn ${num} <span class="label-en">Request ${num}</span>`;
@@ -289,7 +276,6 @@
       });
       requestCounter = sections.length;
     }
-    // Focus vào trường đầu tiên khi mở form
     function focusFirstInput() {
       setTimeout(() => {
         const first = document.querySelector('.form-container input:not([type=hidden]), .form-container select');
@@ -298,25 +284,25 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // reCAPTCHA rendering (optional if you want to re-render via JS)
-      if (RECAPTCHA_SITE_KEY !== 'YOUR_RECAPTCHA_SITE_KEY') {
-        document.getElementById('recaptcha-container').setAttribute('data-sitekey', RECAPTCHA_SITE_KEY);
-      }
-      const addRequestBtn = document.getElementById('add-request-btn');
-      const submitFormBtn = document.getElementById('submit-form-btn');
-      const submitText = document.getElementById('submit-text');
-      const loadingSpinner = document.getElementById('loading-spinner');
       createRentalRequestSection();
       loadLocalContact();
       focusFirstInput();
-      addRequestBtn.addEventListener('click', () => { createRentalRequestSection(); focusFirstInput(); });
 
-      // Validate & submit
-      submitFormBtn.addEventListener('click', async (event) => {
+      document.getElementById('add-request-btn').addEventListener('click', () => {
+        createRentalRequestSection();
+        focusFirstInput();
+      });
+
+      const form = document.getElementById('wifi-form');
+      const submitFormBtn = document.getElementById('submit-form-btn');
+      const submitText = document.getElementById('submit-text');
+      const loadingSpinner = document.getElementById('loading-spinner');
+
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         let isValid = true;
         // Validate required
-        document.querySelectorAll('input[required], select[required]').forEach(input => {
+        form.querySelectorAll('input[required], select[required]').forEach(input => {
           if (!input.value.trim()) { input.classList.add('border-red-500'); isValid = false; }
           else input.classList.remove('border-red-500');
         });
@@ -336,18 +322,18 @@
           Swal.fire({icon: 'error', title: 'Số điện thoại không hợp lệ', text: 'Số điện thoại chỉ chứa số hoặc dấu +. / Only numbers or + allowed.'});
           return;
         }
-        // Validate reCAPTCHA
-        if (typeof grecaptcha !== "undefined" && !grecaptcha.getResponse()) {
-          Swal.fire({icon: 'error', title: 'Vui lòng xác minh reCAPTCHA', text: 'Please complete the reCAPTCHA.'});
-          return;
-        }
         if (!isValid) {
           Swal.fire({icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng điền đầy đủ các trường bắt buộc.'});
           return;
         }
 
-        swalLoading();
+        // Hiện loading spinner trên nút
+        submitText.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
         submitFormBtn.disabled = true;
+
+        // Show SweetAlert2 loading
+        swalLoading();
 
         // Gather data
         const rentalRequestsContainer = document.getElementById('rental-requests-container');
@@ -363,7 +349,7 @@
           },
           rentalRequests: []
         };
-        rentalRequestsContainer.querySelectorAll('.bg-blue-50.p-6').forEach((section, idx) => {
+        rentalRequestsContainer.querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg').forEach((section, idx) => {
           const n = idx + 1;
           formData.rentalRequests.push({
             requestNumber: n,
@@ -377,9 +363,7 @@
         });
 
         try {
-          // Save contact info
           saveLocalContact();
-          // Submit
           await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -387,8 +371,13 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
           });
+          // Ẩn loading nút
+          submitText.classList.remove('hidden');
+          loadingSpinner.classList.add('hidden');
+          submitFormBtn.disabled = false;
+          // Cảm ơn
+          Swal.close(); // Đóng loading SweetAlert
           swalThankYou();
-          // Optionally reset form
           setTimeout(() => {
             document.getElementById('rental-requests-container').innerHTML = '';
             requestCounter = 0;
@@ -397,13 +386,14 @@
             document.getElementById('company-name').value = '';
             document.getElementById('region').value = '';
             document.getElementById('tax-code').value = '';
-            if(typeof grecaptcha !== "undefined") grecaptcha.reset();
             focusFirstInput();
           }, 1000);
         } catch (error) {
-          Swal.fire({icon: 'error', title: 'Có lỗi xảy ra!', text: 'Vui lòng thử lại. / An error occurred. Please try again.'});
-        } finally {
+          submitText.classList.remove('hidden');
+          loadingSpinner.classList.add('hidden');
           submitFormBtn.disabled = false;
+          Swal.close();
+          Swal.fire({icon: 'error', title: 'Có lỗi xảy ra!', text: 'Vui lòng thử lại. / An error occurred. Please try again.'});
         }
       });
     });
