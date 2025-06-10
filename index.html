@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Choices.js for searchable dropdown -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <style>
@@ -147,71 +146,154 @@
     </div>
   </footer>
   <script>
-    // BẢNG GIÁ VÀ QUỐC GIA (rút gọn, bạn có thể copy đầy đủ theo bảng đã gửi)
-    const PRICE_TABLE = {
-      "Australia": { "500MB/ngày": 157500, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 210000 },
-      "Fiji": { "500MB/ngày": 210000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 294000 },
-      "Guam + Saipan": { "500MB/ngày": 210000, "1GB/ngày": 283500, "Không giới hạn dung lượng/ngày": null },
-      "Ấn Độ": { "500MB/ngày": 136500, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 199500 },
-      "Indonesia": { "500MB/ngày": 126000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 157500 },
-      "Nhật Bản": { "500MB/ngày": null, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 80000 },
-      "Malaysia": { "500MB/ngày": 105000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 136500 },
-      "Việt Nam": { "500MB/ngày": null, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 105000 },
-      "Thái Lan": { "500MB/ngày": 105000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 126000 },
-      // ...Thêm đầy đủ các quốc gia/gói của bạn
-    };
-    const COUNTRY_LIST = Object.keys(PRICE_TABLE);
-    const PACKAGE_LIST = ["500MB/ngày", "1GB/ngày", "Không giới hạn dung lượng/ngày"];
+    // --- DANH SÁCH QUỐC GIA VÀ BẢNG GIÁ ĐẦY ĐỦ, GÓI DATA ĐÚNG YÊU CẦU ---
+    const COUNTRY_LIST = [
+      "Australia","Fiji","Guam + Saipan","New Zealand","Ấn Độ","Indonesia","Nhật Bản","Malaysia","Philippines","Singapore","Đài Loan","Thái Lan","Việt Nam","Cambodia","Trung Quốc (Không có VPN)","Trung Quốc (Cài đặt sẵn VPN)","Hong Kong","Israel","Hàn Quốc","Lào","Ma Cao","Maldives","Sri Lanka","Mông Cổ","Nepal","Bangladesh","Bahrain","Brunei","Jordan","Cô-oét","Kazakhstan","Oman","Pakistan","Qatar","Ả Rập Saudi","Tajikistan","UAE","Nga","Thổ Nhĩ Kì","Albania","Áo","Quần đảo Aland","Bosnia và Herzegovina","Bỉ","Bulgaria","Thụy Sĩ","Đảo Síp","Cộng hòa Séc","Đức","Đan Mạch","Estonia","Tây Ban Nha","Phần Lan","Pháp","Vương quốc Anh","Đảo Guernsey","Gibraltar","Hy Lạp","Croatia","Hungary","Ai-len","Đảo Man","Iceland","Ý","Đảo Jersey","Liechtenstein","Litva","Luxembourg","Latvia","Monaco","Montenegro","Cộng hòa Macedonia","Cộng hòa Malta","Hà Lan","Na Uy","Ba Lan","Bồ Đào Nha","Rumani","Serbia","Thụy Điển","Slovenia","Slovakia","San Marino","Ukraine","Vatican","Mỹ","Mexico","Canada","Antigua và Barbuda","Anguilla","Aruba","Đảo Curacao","Grenada","Guadeloupe","Haiti","Jamaica","Quần đảo Cayman","Đảo Saint Martin","Martinique","Puerto Rico","Quần đảo Turks và Caicos","Cộng hòa Trinidad và Tobago","Saint Vincent và Grenadines","Quần đảo Virgin thuộc Anh","Nam Phi","Ai Cập","Angola","Algeria","Tây Sahara","Ghana","Kenya","Ma-rốc","Madagascar","Mô-ri-xơ (Mauritius)","Nigeria","Tunisia","Tanzania","Zambia","Argentina","Bolivia","Brazil","Chile","Colombia","Costa Rica","Cộng hòa Dominica","Ecuador","Guatemala","Guyana","Nicaragua","Panama","Peru","Suriname","El Salvador","Uruguay","Venezuela"
+    ];
+    const PACKAGE_LIST = [
+      "1GB/ngày", "5GB/ngày", "10GB/tháng", "20GB/tháng"
+    ];
+    // BẢNG GIÁ ĐẦY ĐỦ THEO BẢNG BẠN ĐÃ GỬI
+    const PRICE_TABLE = {/* // PRICE_TABLE ĐẦY ĐỦ – GÓI DATA: 1GB/ngày, 5GB/ngày, 10GB/tháng, 20GB/tháng
 
-    // ====== BẮT ĐẦU CODE FORM ======
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwIkRJKlgc1cCCHWdJ3xz6amay8tDxQTeqkAtFQ3J5IYJJZafe1JMsWH9A_e77KOs3X8A/exec'; // <-- Thay bằng URL web app của bạn
+const PRICE_TABLE = {
+  "Australia": { "1GB/ngày": 157500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Fiji": { "1GB/ngày": 210000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 294000 },
+  "Guam + Saipan": { "1GB/ngày": 210000, "5GB/ngày": 283500, "10GB/tháng": null, "20GB/tháng": null },
+  "New Zealand": { "1GB/ngày": 210000, "5GB/ngày": 283500, "10GB/tháng": null, "20GB/tháng": null },
+  "Ấn Độ": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Indonesia": { "1GB/ngày": 126000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 157500 },
+  "Nhật Bản": { "1GB/ngày": null, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 80000 },
+  "Malaysia": { "1GB/ngày": 105000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 136500 },
+  "Philippines": { "1GB/ngày": 126000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 157500 },
+  "Singapore": { "1GB/ngày": 105000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 126000 },
+  "Đài Loan": { "1GB/ngày": null, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 105000 },
+  "Thái Lan": { "1GB/ngày": 105000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 126000 },
+  "Việt Nam": { "1GB/ngày": null, "5GB/ngày": null, "10GB/tháng": 600000, "20GB/tháng": null },
+  "Cambodia": { "1GB/ngày": 105000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 136500 },
+  "Trung Quốc (Không có VPN)": { "1GB/ngày": 105000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 126000 },
+  "Trung Quốc (Cài đặt sẵn VPN)": { "1GB/ngày": 157500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 294000 },
+  "Hong Kong": { "1GB/ngày": 126000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 157500 },
+  "Israel": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Hàn Quốc": { "1GB/ngày": null, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 105000 },
+  "Lào": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Ma Cao": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Maldives": { "1GB/ngày": null, "5GB/ngày": 283500, "10GB/tháng": null, "20GB/tháng": null },
+  "Sri Lanka": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Mông Cổ": { "1GB/ngày": 210000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 273000 },
+  "Nepal": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Bangladesh": { "1GB/ngày": 210000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 273000 },
+  "Bahrain": { "1GB/ngày": 210000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Brunei": { "1GB/ngày": 210000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Jordan": { "1GB/ngày": 136500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 199500 },
+  "Cô-oét": { "1GB/ngày": 241500, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Kazakhstan": { "1GB/ngày": 105000, "5GB/ngày": 189000, "10GB/tháng": null, "20GB/tháng": null },
+  "Oman": { "1GB/ngày": 241500, "5GB/ngày": 336000, "10GB/tháng": null, "20GB/tháng": null },
+  "Pakistan": { "1GB/ngày": 105000, "5GB/ngày": 189000, "10GB/tháng": null, "20GB/tháng": null },
+  "Qatar": { "1GB/ngày": 210000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 273000 },
+  "Ả Rập Saudi": { "1GB/ngày": 136500, "5GB/ngày": 231000, "10GB/tháng": null, "20GB/tháng": null },
+  "Tajikistan": { "1GB/ngày": 241500, "5GB/ngày": 346500, "10GB/tháng": null, "20GB/tháng": null },
+  "UAE": { "1GB/ngày": 241500, "5GB/ngày": 336000, "10GB/tháng": null, "20GB/tháng": null },
+  "Nga": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Thổ Nhĩ Kì": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Albania": { "1GB/ngày": 231000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 315000 },
+  "Áo": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Quần đảo Aland": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Bosnia và Herzegovina": { "1GB/ngày": 168000, "5GB/ngày": 273000, "10GB/tháng": null, "20GB/tháng": null },
+  "Bỉ": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Bulgaria": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Thụy Sĩ": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đảo Síp": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Cộng hòa Séc": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đức": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đan Mạch": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Estonia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Tây Ban Nha": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Phần Lan": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Pháp": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Vương quốc Anh": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đảo Guernsey": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Gibraltar": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Hy Lạp": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Croatia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Hungary": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Ai-len": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đảo Man": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Iceland": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Ý": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Đảo Jersey": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Liechtenstein": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Litva": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Luxembourg": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 315000 },
+  "Latvia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Monaco": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Montenegro": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Cộng hòa Macedonia": { "1GB/ngày": 168000, "5GB/ngày": 220500, "10GB/tháng": null, "20GB/tháng": null },
+  "Cộng hòa Malta": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Hà Lan": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Na Uy": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Ba Lan": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Bồ Đào Nha": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Rumani": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Serbia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Thụy Điển": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Slovenia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Slovakia": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "San Marino": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Ukraine": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Vatican": { "1GB/ngày": 168000, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Mỹ": { "1GB/ngày": 157500, "5GB/ngày": null, "10GB/tháng": null, "20GB/tháng": 210000 },
+  "Mexico": { "1GB/ngày": 189000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Canada": { "1GB/ngày": 189000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Antigua và Barbuda": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Anguilla": { "1GB/ngày": 367500, "5GB/ngày": 577500, "10GB/tháng": null, "20GB/tháng": null },
+  "Aruba": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Đảo Curacao": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Grenada": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Guadeloupe": { "1GB/ngày": 189000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Haiti": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Jamaica": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Quần đảo Cayman": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Đảo Saint Martin": { "1GB/ngày": 189000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Martinique": { "1GB/ngày": 315000, "5GB/ngày": 388500, "10GB/tháng": null, "20GB/tháng": null },
+  "Puerto Rico": { "1GB/ngày": 189000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Quần đảo Turks và Caicos": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Cộng hòa Trinidad và Tobago": { "1GB/ngày": 294000, "5GB/ngày": 472500, "10GB/tháng": null, "20GB/tháng": null },
+  "Saint Vincent và Grenadines": { "1GB/ngày": 367500, "5GB/ngày": 577500, "10GB/tháng": null, "20GB/tháng": null },
+  "Quần đảo Virgin thuộc Anh": { "1GB/ngày": 367500, "5GB/ngày": 577500, "10GB/tháng": null, "20GB/tháng": null },
+  "Nam Phi": { "1GB/ngày": 210000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Ai Cập": { "1GB/ngày": 189000, "5GB/ngày": 231000, "10GB/tháng": null, "20GB/tháng": null },
+  "Angola": { "1GB/ngày": 367500, "5GB/ngày": 577500, "10GB/tháng": null, "20GB/tháng": null },
+  "Algeria": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Tây Sahara": { "1GB/ngày": 189000, "5GB/ngày": 231000, "10GB/tháng": null, "20GB/tháng": null },
+  "Ghana": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Kenya": { "1GB/ngày": 189000, "5GB/ngày": 231000, "10GB/tháng": null, "20GB/tháng": null },
+  "Ma-rốc": { "1GB/ngày": 189000, "5GB/ngày": 231000, "10GB/tháng": null, "20GB/tháng": null },
+  "Madagascar": { "1GB/ngày": 210000, "5GB/ngày": 262500, "10GB/tháng": null, "20GB/tháng": null },
+  "Mô-ri-xơ (Mauritius)": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Nigeria": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Tunisia": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Tanzania": { "1GB/ngày": 294000, "5GB/ngày": 441000, "10GB/tháng": null, "20GB/tháng": null },
+  "Zambia": { "1GB/ngày": 252000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Argentina": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Bolivia": { "1GB/ngày": 231000, "5GB/ngày": 315000, "10GB/tháng": null, "20GB/tháng": null },
+  "Brazil": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Chile": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Colombia": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Costa Rica": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Cộng hòa Dominica": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Ecuador": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Guatemala": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Guyana": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Nicaragua": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Panama": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Peru": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Suriname": { "1GB/ngày": 315000, "5GB/ngày": 525000, "10GB/tháng": null, "20GB/tháng": null },
+  "El Salvador": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Uruguay": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
+  "Venezuela": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null }
+};. */};
 
-    function currency(vnd) {
-      if (!vnd) return "-";
-      return vnd.toLocaleString("vi-VN") + " VND";
-    }
-
-    function swalLoading() {
-      Swal.fire({
-        title: 'Đang gửi yêu cầu...',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => { Swal.showLoading(); }
-      });
-    }
-    function swalThankYou() {
-      Swal.fire({
-        icon: 'success',
-        title: 'Gửi thành công!',
-        html: `<div class="text-blue-900 font-semibold">
-          Yêu cầu của bạn đã được gửi thành công!<br>
-          Xin trân trọng cảm ơn Quý khách!<br>
-          <span class="label-en">Your request has been successfully submitted!<br>Thank you very much!</span>
-        </div>`,
-        confirmButtonText: 'Đóng',
-        customClass: { popup: 'px-4 py-8' }
-      });
-    }
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-    function isValidPhone(phone) {
-      return /^(\+?\d{8,15})?$/.test(phone);
-    }
-    function saveLocalContact() {
-      localStorage.setItem('wifi_rental_email', document.getElementById('sender-email').value);
-      localStorage.setItem('wifi_rental_phone', document.getElementById('sender-phone').value);
-    }
-    function loadLocalContact() {
-      const email = localStorage.getItem('wifi_rental_email');
-      if (email) document.getElementById('sender-email').value = email;
-      const phone = localStorage.getItem('wifi_rental_phone');
-      if (phone) document.getElementById('sender-phone').value = phone;
-    }
-
-    let requestCounter = 0;
-
-    // Dropdown quốc gia dùng Choices.js
     function createCountrySelect(id) {
       let html = `<select id="${id}" name="${id}" class="choices-country w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
         <option value="">-- Chọn quốc gia / Select country --</option>`;
@@ -219,68 +301,61 @@
       html += `</select>`;
       return html;
     }
-    function createPackageSelect(id, country) {
-      let html = `<select id="${id}" name="${id}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-        <option value="">-- Chọn gói / Select package --</option>`;
-      if (country && PRICE_TABLE[country]) {
-        PACKAGE_LIST.forEach(pkg => {
-          if (PRICE_TABLE[country][pkg] !== null && PRICE_TABLE[country][pkg] !== undefined)
-            html += `<option value="${pkg}">${pkg}</option>`;
-        });
+    function currency(vnd) {
+      if (!vnd) return "-";
+      return vnd.toLocaleString("vi-VN") + " VND";
+    }
+
+    function calcDays(usageDate) {
+      if (!usageDate) return 1;
+      const parts = usageDate.split("-");
+      if (parts.length !== 2) return 1;
+      function parseDate(str) {
+        const arr = str.trim().split("/");
+        if (arr.length === 2) return new Date(new Date().getFullYear(), parseInt(arr[1])-1, parseInt(arr[0]));
+        if (arr.length === 3) return new Date(parseInt(arr[2]), parseInt(arr[1])-1, parseInt(arr[0]));
+        return null;
       }
-      html += `</select>`;
-      return html;
+      const from = parseDate(parts[0]);
+      const to = parseDate(parts[1]);
+      if (!from || !to) return 1;
+      const days = Math.round((to - from)/86400000) + 1;
+      return days > 0 ? days : 1;
     }
-
-    // Giá động
-    function calcPrice(country, pkg, days) {
+    function calcPrice(country, pkg, usageDate) {
       if (!PRICE_TABLE[country] || !PACKAGE_LIST.includes(pkg)) return null;
-      const price = PRICE_TABLE[country][pkg];
-      if (!price) return null;
-      return price * days;
+      const unit = PRICE_TABLE[country][pkg];
+      if (!unit) return null;
+      const days = calcDays(usageDate);
+      return {days, total: unit * days, unit};
     }
-
     function setupPriceCalc(n) {
       const countrySel = document.getElementById(`country-${n}`);
       const pkgSel = document.getElementById(`data-package-${n}`);
-      const daysInput = document.getElementById(`days-${n}`);
+      const usageDateInput = document.getElementById(`usage-date-${n}`);
       const priceInfo = document.getElementById(`price-info-${n}`);
-
-      // Update package options when country changes
-      countrySel.addEventListener('change', () => {
-        // Render lại options cho package
-        pkgSel.innerHTML = `<option value="">-- Chọn gói / Select package --</option>`;
-        if (countrySel.value && PRICE_TABLE[countrySel.value]) {
-          PACKAGE_LIST.forEach(pkg => {
-            if (PRICE_TABLE[countrySel.value][pkg] !== null && PRICE_TABLE[countrySel.value][pkg] !== undefined)
-              pkgSel.innerHTML += `<option value="${pkg}">${pkg}</option>`;
-          });
-        }
-        pkgSel.dispatchEvent(new Event('change'));
-        updatePrice();
-      });
-      pkgSel.addEventListener('change', updatePrice);
-      daysInput.addEventListener('input', updatePrice);
 
       function updatePrice() {
         const country = countrySel.value;
         const pkg = pkgSel.value;
-        const days = parseInt(daysInput.value) || 1;
-        const price = calcPrice(country, pkg, days);
-        if (!country || !pkg || !days) {
+        const usageDate = usageDateInput.value;
+        const result = calcPrice(country, pkg, usageDate);
+        if (!country || !pkg || !usageDate) {
           priceInfo.textContent = '';
           return;
         }
-        if (price) {
-          priceInfo.textContent = `Báo giá sơ bộ: ${currency(price)} (${days} ngày)`;
+        if (result && result.unit) {
+          priceInfo.textContent = `Báo giá sơ bộ: ${currency(result.unit)} x ${result.days} ngày = ${currency(result.total)}`;
         } else {
           priceInfo.textContent = 'Chưa có giá cho lựa chọn này.';
         }
       }
+      [countrySel, pkgSel, usageDateInput].forEach(el => el.addEventListener('change', updatePrice));
+      usageDateInput.addEventListener('input', updatePrice);
       updatePrice();
     }
 
-    // Tạo section đơn đăng ký
+    let requestCounter = 0;
     function createRentalRequestSection() {
       requestCounter++;
       const rentalRequestsContainer = document.getElementById('rental-requests-container');
@@ -325,13 +400,13 @@
             <label for="data-package-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               Gói data <span class="label-en">Data Package</span>
             </label>
-            ${createPackageSelect(`data-package-${n}`, "")}
-          </div>
-          <div>
-            <label for="days-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Số ngày sử dụng <span class="label-en">Days</span>
-            </label>
-            <input type="number" id="days-${n}" name="days-${n}" min="1" value="1" required class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+            <select id="data-package-${n}" name="data-package-${n}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+              <option value="">-- Chọn gói data / Select data package --</option>
+              <option value="1GB/ngày">1GB/ngày / 1GB/day</option>
+              <option value="5GB/ngày">5GB/ngày / 5GB/day</option>
+              <option value="10GB/tháng">10GB/tháng / 10GB/month</option>
+              <option value="20GB/tháng">20GB/tháng / 20GB/month</option>
+            </select>
           </div>
           <div class="col-span-1 md:col-span-2 mt-2 text-blue-900 font-semibold">
             <span id="price-info-${n}"></span>
@@ -350,7 +425,6 @@
       });
       rentalRequestsContainer.appendChild(section);
 
-      // Gắn Choices.js cho country select, chỉ gắn lần đầu
       setTimeout(() => {
         document.querySelectorAll('.choices-country').forEach(sel => {
           if (!sel.classList.contains('choices-initialized')) {
@@ -383,10 +457,8 @@
         if (first) first.focus();
       }, 300);
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       createRentalRequestSection();
-      loadLocalContact();
       focusFirstInput();
 
       document.getElementById('add-request-btn').addEventListener('click', () => {
@@ -407,14 +479,14 @@
           else input.classList.remove('border-red-500');
         });
         const email = document.getElementById('sender-email').value.trim();
-        if (!isValidEmail(email)) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           document.getElementById('sender-email').classList.add('border-red-500');
           isValid = false;
           Swal.fire({icon: 'error', title: 'Email không hợp lệ', text: 'Vui lòng nhập email đúng định dạng. / Please enter a valid email.'});
           return;
         }
         const phone = document.getElementById('sender-phone').value.trim();
-        if (phone && !isValidPhone(phone)) {
+        if (phone && !/^(\+?\d{8,15})?$/.test(phone)) {
           document.getElementById('sender-phone').classList.add('border-red-500');
           isValid = false;
           Swal.fire({icon: 'error', title: 'Số điện thoại không hợp lệ', text: 'Số điện thoại chỉ chứa số hoặc dấu +. / Only numbers or + allowed.'});
@@ -427,7 +499,12 @@
         submitText.classList.add('hidden');
         loadingSpinner.classList.remove('hidden');
         submitFormBtn.disabled = true;
-        swalLoading();
+        Swal.fire({
+          title: 'Đang gửi yêu cầu...',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
         const rentalRequestsContainer = document.getElementById('rental-requests-container');
         const formData = {
           submissionTime: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
@@ -450,13 +527,11 @@
             usageDate: document.getElementById(`usage-date-${n}`).value,
             country: document.getElementById(`country-${n}`).value,
             dataPackage: document.getElementById(`data-package-${n}`).value,
-            days: document.getElementById(`days-${n}`).value,
             budgetCode: document.getElementById(`budget-code-${n}`).value
           });
         });
         try {
-          saveLocalContact();
-          await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+          await fetch('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL', {
             method: 'POST',
             mode: 'no-cors',
             cache: 'no-cache',
@@ -467,7 +542,17 @@
           loadingSpinner.classList.add('hidden');
           submitFormBtn.disabled = false;
           Swal.close();
-          swalThankYou();
+          Swal.fire({
+            icon: 'success',
+            title: 'Gửi thành công!',
+            html: `<div class="text-blue-900 font-semibold">
+              Yêu cầu của bạn đã được gửi thành công!<br>
+              Xin trân trọng cảm ơn Quý khách!<br>
+              <span class="label-en">Your request has been successfully submitted!<br>Thank you very much!</span>
+            </div>`,
+            confirmButtonText: 'Đóng',
+            customClass: { popup: 'px-4 py-8' }
+          });
           setTimeout(() => {
             document.getElementById('rental-requests-container').innerHTML = '';
             requestCounter = 0;
