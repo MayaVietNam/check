@@ -5,16 +5,16 @@
   <title>ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Choices.js for searchable dropdown -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <style>
     html, body { height: 100%; margin: 0; padding: 0; min-height: 100vh; }
     body {
       background: #e5eefb; min-height: 100vh; position: relative; box-sizing: border-box; overflow-x: hidden;
     }
-    .bg-logo-bg {
-      pointer-events: none; position: fixed; z-index: 0; left: 0; top: 0; width: 100vw; height: 100vh; overflow: hidden;
-    }
+    .bg-logo-bg { pointer-events: none; position: fixed; z-index: 0; left: 0; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
     .bg-logo-bg-inner {
       position: absolute; left: 50%; top: 50%; width: 200vw; height: 200vh;
       transform: translate(-50%, -50%) rotate(-10deg);
@@ -46,7 +46,6 @@
   <div class="logo-on-top">
     <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo">
   </div>
-
   <main>
     <div class="form-container max-w-3xl mx-auto mt-6">
       <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-widest uppercase">
@@ -148,43 +147,36 @@
     </div>
   </footer>
   <script>
-    // Bảng giá mẫu, bạn nên mở rộng thêm đầy đủ
+    // BẢNG GIÁ VÀ QUỐC GIA (rút gọn, bạn có thể copy đầy đủ theo bảng đã gửi)
     const PRICE_TABLE = {
-      "Thái Lan": {
-        "500MB/ngày": 105000,
-        "1GB/ngày": null,
-        "Không giới hạn dung lượng/ngày": 126000,
-      },
-      "Nhật Bản": {
-        "500MB/ngày": null,
-        "1GB/ngày": null,
-        "Không giới hạn dung lượng/ngày": 80000,
-      },
-      "Indonesia": {
-        "500MB/ngày": 126000,
-        "1GB/ngày": null,
-        "Không giới hạn dung lượng/ngày": 157500,
-      },
-      // ... Thêm các quốc gia khác
+      "Australia": { "500MB/ngày": 157500, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 210000 },
+      "Fiji": { "500MB/ngày": 210000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 294000 },
+      "Guam + Saipan": { "500MB/ngày": 210000, "1GB/ngày": 283500, "Không giới hạn dung lượng/ngày": null },
+      "Ấn Độ": { "500MB/ngày": 136500, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 199500 },
+      "Indonesia": { "500MB/ngày": 126000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 157500 },
+      "Nhật Bản": { "500MB/ngày": null, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 80000 },
+      "Malaysia": { "500MB/ngày": 105000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 136500 },
+      "Việt Nam": { "500MB/ngày": null, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 105000 },
+      "Thái Lan": { "500MB/ngày": 105000, "1GB/ngày": null, "Không giới hạn dung lượng/ngày": 126000 },
+      // ...Thêm đầy đủ các quốc gia/gói của bạn
     };
-    // Danh sách quốc gia và gói data mẫu
     const COUNTRY_LIST = Object.keys(PRICE_TABLE);
-    const DATA_PACKAGE_LIST = [
-      "500MB/ngày",
-      "1GB/ngày",
-      "Không giới hạn dung lượng/ngày"
-    ];
+    const PACKAGE_LIST = ["500MB/ngày", "1GB/ngày", "Không giới hạn dung lượng/ngày"];
 
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz2hJguCyfPk1kkhZJhkEwgNv69bt1JIp4IXdZMX8riQLVZr_3gzwc7o_XZPJo5j1ez4w/exec';
+    // ====== BẮT ĐẦU CODE FORM ======
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwIkRJKlgc1cCCHWdJ3xz6amay8tDxQTeqkAtFQ3J5IYJJZafe1JMsWH9A_e77KOs3X8A/exec'; // <-- Thay bằng URL web app của bạn
+
+    function currency(vnd) {
+      if (!vnd) return "-";
+      return vnd.toLocaleString("vi-VN") + " VND";
+    }
 
     function swalLoading() {
       Swal.fire({
         title: 'Đang gửi yêu cầu...',
         allowOutsideClick: false,
         showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
+        didOpen: () => { Swal.showLoading(); }
       });
     }
     function swalThankYou() {
@@ -216,92 +208,285 @@
       const phone = localStorage.getItem('wifi_rental_phone');
       if (phone) document.getElementById('sender-phone').value = phone;
     }
+
     let requestCounter = 0;
 
+    // Dropdown quốc gia dùng Choices.js
+    function createCountrySelect(id) {
+      let html = `<select id="${id}" name="${id}" class="choices-country w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+        <option value="">-- Chọn quốc gia / Select country --</option>`;
+      COUNTRY_LIST.forEach(c => html += `<option value="${c}">${c}</option>`);
+      html += `</select>`;
+      return html;
+    }
+    function createPackageSelect(id, country) {
+      let html = `<select id="${id}" name="${id}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+        <option value="">-- Chọn gói / Select package --</option>`;
+      if (country && PRICE_TABLE[country]) {
+        PACKAGE_LIST.forEach(pkg => {
+          if (PRICE_TABLE[country][pkg] !== null && PRICE_TABLE[country][pkg] !== undefined)
+            html += `<option value="${pkg}">${pkg}</option>`;
+        });
+      }
+      html += `</select>`;
+      return html;
+    }
+
+    // Giá động
+    function calcPrice(country, pkg, days) {
+      if (!PRICE_TABLE[country] || !PACKAGE_LIST.includes(pkg)) return null;
+      const price = PRICE_TABLE[country][pkg];
+      if (!price) return null;
+      return price * days;
+    }
+
+    function setupPriceCalc(n) {
+      const countrySel = document.getElementById(`country-${n}`);
+      const pkgSel = document.getElementById(`data-package-${n}`);
+      const daysInput = document.getElementById(`days-${n}`);
+      const priceInfo = document.getElementById(`price-info-${n}`);
+
+      // Update package options when country changes
+      countrySel.addEventListener('change', () => {
+        // Render lại options cho package
+        pkgSel.innerHTML = `<option value="">-- Chọn gói / Select package --</option>`;
+        if (countrySel.value && PRICE_TABLE[countrySel.value]) {
+          PACKAGE_LIST.forEach(pkg => {
+            if (PRICE_TABLE[countrySel.value][pkg] !== null && PRICE_TABLE[countrySel.value][pkg] !== undefined)
+              pkgSel.innerHTML += `<option value="${pkg}">${pkg}</option>`;
+          });
+        }
+        pkgSel.dispatchEvent(new Event('change'));
+        updatePrice();
+      });
+      pkgSel.addEventListener('change', updatePrice);
+      daysInput.addEventListener('input', updatePrice);
+
+      function updatePrice() {
+        const country = countrySel.value;
+        const pkg = pkgSel.value;
+        const days = parseInt(daysInput.value) || 1;
+        const price = calcPrice(country, pkg, days);
+        if (!country || !pkg || !days) {
+          priceInfo.textContent = '';
+          return;
+        }
+        if (price) {
+          priceInfo.textContent = `Báo giá sơ bộ: ${currency(price)} (${days} ngày)`;
+        } else {
+          priceInfo.textContent = 'Chưa có giá cho lựa chọn này.';
+        }
+      }
+      updatePrice();
+    }
+
+    // Tạo section đơn đăng ký
     function createRentalRequestSection() {
       requestCounter++;
       const rentalRequestsContainer = document.getElementById('rental-requests-container');
+      const n = requestCounter;
       const section = document.createElement('section');
       section.className = 'bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-200';
-      section.id = `request-${requestCounter}`;
-
-      // Quốc gia select options
-      let countryOptions = `<option value="">--Chọn quốc gia--</option>`;
-      COUNTRY_LIST.forEach(c => {
-        countryOptions += `<option value="${c}">${c}</option>`;
-      });
-      // Gói data select options
-      let dataPackageOptions = `<option value="">--Chọn gói data--</option>`;
-      DATA_PACKAGE_LIST.forEach(pkg => {
-        dataPackageOptions += `<option value="${pkg}">${pkg}</option>`;
-      });
-
+      section.id = `request-${n}`;
       section.innerHTML = `
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold text-blue-800">
-            Đơn ${requestCounter}
-            <span class="label-en">Request ${requestCounter}</span>
+            Đơn ${n}
+            <span class="label-en">Request ${n}</span>
           </h2>
-          ${requestCounter > 1 ? `<button type="button" class="remove-request-btn text-red-500 hover:text-red-700 font-semibold text-sm" title="Xóa đơn này">Xóa <span class="label-en text-red-400">Remove</span></button>` : ''}
+          ${n > 1 ? `<button type="button" class="remove-request-btn text-red-500 hover:text-red-700 font-semibold text-sm" title="Xóa đơn này">Xóa <span class="label-en text-red-400">Remove</span></button>` : ''}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label for="user-name-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
+            <label for="user-name-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               Tên người dùng <span class="label-en">User Name</span>
             </label>
-            <input type="text" id="user-name-${requestCounter}" name="user-name-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền tên người dùng / Enter user name" required>
+            <input type="text" id="user-name-${n}" name="user-name-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền tên người dùng / Enter user name" required>
           </div>
           <div>
-            <label for="imei-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
+            <label for="imei-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               IMEI <span class="label-en">IMEI</span>
             </label>
-            <input type="text" id="imei-${requestCounter}" name="imei-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền số IMEI / Enter IMEI" required>
+            <input type="text" id="imei-${n}" name="imei-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền số IMEI / Enter IMEI" required>
           </div>
           <div>
-            <label for="usage-date-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Ngày sử dụng <span class="label-en">Usage Date (dd/MM - dd/MM)</span>
+            <label for="usage-date-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+              Ngày sử dụng <span class="label-en">Usage Date</span>
             </label>
-            <input type="text" id="usage-date-${requestCounter}" name="usage-date-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="VD: 11/06 - 21/06 / e.g., 11/06 - 21/06" required>
+            <input type="text" id="usage-date-${n}" name="usage-date-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="VD: 11/06 - 21/06 / e.g., 11/06 - 21/06" required>
           </div>
           <div>
-            <label for="country-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
+            <label for="country-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               Quốc gia <span class="label-en">Country</span>
             </label>
-            <select id="country-${requestCounter}" name="country-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-              ${countryOptions}
-            </select>
+            ${createCountrySelect(`country-${n}`)}
           </div>
           <div>
-            <label for="data-package-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
+            <label for="data-package-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               Gói data <span class="label-en">Data Package</span>
             </label>
-            <select id="data-package-${requestCounter}" name="data-package-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-              ${dataPackageOptions}
-            </select>
+            ${createPackageSelect(`data-package-${n}`, "")}
+          </div>
+          <div>
+            <label for="days-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+              Số ngày sử dụng <span class="label-en">Days</span>
+            </label>
+            <input type="number" id="days-${n}" name="days-${n}" min="1" value="1" required class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+          </div>
+          <div class="col-span-1 md:col-span-2 mt-2 text-blue-900 font-semibold">
+            <span id="price-info-${n}"></span>
           </div>
           <div class="col-span-1 md:col-span-2">
-            <label for="budget-code-${requestCounter}" class="block text-blue-800 text-sm font-semibold mb-2">
+            <label for="budget-code-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
               Mã Thanh Toán <span class="label-en">Budget Code</span>
             </label>
-            <input type="text" id="budget-code-${requestCounter}" name="budget-code-${requestCounter}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền Mã Thanh Toán / Enter budget code (if any)">
+            <input type="text" id="budget-code-${n}" name="budget-code-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" placeholder="Điền Mã Thanh Toán / Enter budget code (if any)">
           </div>
         </div>
-        <div id="price-display-${requestCounter}" class="text-lg text-red-600 font-bold mt-2"></div>
       `;
-
       const removeBtn = section.querySelector('.remove-request-btn');
       if (removeBtn) removeBtn.addEventListener('click', () => {
         section.remove(); updateSectionNumbers();
       });
       rentalRequestsContainer.appendChild(section);
 
-      // Gán sự kiện tự động tính giá
-      const idx = requestCounter;
+      // Gắn Choices.js cho country select, chỉ gắn lần đầu
       setTimeout(() => {
-        document.getElementById(`country-${idx}`).addEventListener('change', () => updatePriceDisplay(idx));
-        document.getElementById(`data-package-${idx}`).addEventListener('change', () => updatePriceDisplay(idx));
-        document.getElementById(`usage-date-${idx}`).addEventListener('input', () => updatePriceDisplay(idx));
-      }, 200);
+        document.querySelectorAll('.choices-country').forEach(sel => {
+          if (!sel.classList.contains('choices-initialized')) {
+            new Choices(sel, { searchEnabled: true, shouldSort: true, itemSelectText: '' });
+            sel.classList.add('choices-initialized');
+          }
+        });
+      }, 50);
+
+      setupPriceCalc(n);
     }
     function updateSectionNumbers() {
-      const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p
+      const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg');
+      sections.forEach((section, idx) => {
+        const num = idx + 1;
+        section.querySelector('h2').innerHTML = `Đơn ${num} <span class="label-en">Request ${num}</span>`;
+        section.querySelectorAll('input,select').forEach(input => {
+          let base = input.id.replace(/-\d+$/, '');
+          input.id = `${base}-${num}`;
+          input.name = `${base}-${num}`;
+          const label = section.querySelector(`label[for="${input.id}"]`);
+          if (label) label.setAttribute('for', input.id);
+        });
+      });
+      requestCounter = sections.length;
+    }
+    function focusFirstInput() {
+      setTimeout(() => {
+        const first = document.querySelector('.form-container input:not([type=hidden]), .form-container select');
+        if (first) first.focus();
+      }, 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      createRentalRequestSection();
+      loadLocalContact();
+      focusFirstInput();
+
+      document.getElementById('add-request-btn').addEventListener('click', () => {
+        createRentalRequestSection();
+        focusFirstInput();
+      });
+
+      const form = document.getElementById('wifi-form');
+      const submitFormBtn = document.getElementById('submit-form-btn');
+      const submitText = document.getElementById('submit-text');
+      const loadingSpinner = document.getElementById('loading-spinner');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        let isValid = true;
+        form.querySelectorAll('input[required], select[required]').forEach(input => {
+          if (!input.value.trim()) { input.classList.add('border-red-500'); isValid = false; }
+          else input.classList.remove('border-red-500');
+        });
+        const email = document.getElementById('sender-email').value.trim();
+        if (!isValidEmail(email)) {
+          document.getElementById('sender-email').classList.add('border-red-500');
+          isValid = false;
+          Swal.fire({icon: 'error', title: 'Email không hợp lệ', text: 'Vui lòng nhập email đúng định dạng. / Please enter a valid email.'});
+          return;
+        }
+        const phone = document.getElementById('sender-phone').value.trim();
+        if (phone && !isValidPhone(phone)) {
+          document.getElementById('sender-phone').classList.add('border-red-500');
+          isValid = false;
+          Swal.fire({icon: 'error', title: 'Số điện thoại không hợp lệ', text: 'Số điện thoại chỉ chứa số hoặc dấu +. / Only numbers or + allowed.'});
+          return;
+        }
+        if (!isValid) {
+          Swal.fire({icon: 'error', title: 'Thiếu thông tin', text: 'Vui lòng điền đầy đủ các trường bắt buộc.'});
+          return;
+        }
+        submitText.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+        submitFormBtn.disabled = true;
+        swalLoading();
+        const rentalRequestsContainer = document.getElementById('rental-requests-container');
+        const formData = {
+          submissionTime: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+          globalSenderInfo: {
+            name: document.getElementById('sender-name').value,
+            email: email,
+            phone: phone,
+            company: document.getElementById('company-name').value,
+            region: document.getElementById('region').value,
+            taxCode: document.getElementById('tax-code').value
+          },
+          rentalRequests: []
+        };
+        rentalRequestsContainer.querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg').forEach((section, idx) => {
+          const n = idx + 1;
+          formData.rentalRequests.push({
+            requestNumber: n,
+            userName: document.getElementById(`user-name-${n}`).value,
+            imei: document.getElementById(`imei-${n}`).value,
+            usageDate: document.getElementById(`usage-date-${n}`).value,
+            country: document.getElementById(`country-${n}`).value,
+            dataPackage: document.getElementById(`data-package-${n}`).value,
+            days: document.getElementById(`days-${n}`).value,
+            budgetCode: document.getElementById(`budget-code-${n}`).value
+          });
+        });
+        try {
+          saveLocalContact();
+          await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          submitText.classList.remove('hidden');
+          loadingSpinner.classList.add('hidden');
+          submitFormBtn.disabled = false;
+          Swal.close();
+          swalThankYou();
+          setTimeout(() => {
+            document.getElementById('rental-requests-container').innerHTML = '';
+            requestCounter = 0;
+            createRentalRequestSection();
+            document.getElementById('sender-name').value = '';
+            document.getElementById('company-name').value = '';
+            document.getElementById('region').value = '';
+            document.getElementById('tax-code').value = '';
+            focusFirstInput();
+          }, 1000);
+        } catch (error) {
+          submitText.classList.remove('hidden');
+          loadingSpinner.classList.add('hidden');
+          submitFormBtn.disabled = false;
+          Swal.close();
+          Swal.fire({icon: 'error', title: 'Có lỗi xảy ra!', text: 'Vui lòng thử lại. / An error occurred. Please try again.'});
+        }
+      });
+    });
+  </script>
+</body>
+</html>
