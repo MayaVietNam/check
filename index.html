@@ -425,7 +425,7 @@
             };
             
             try {
-                const response = await fetch(SCRIPT_URL, 'https://script.google.com/macros/s/AKfycbzOZLQ0nkvQA1fn4_gNzwkohwv914OYARZxz2yP3JJNdTkEf1D1dggreGKWZ7AOKXUxRw/exec'
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors', // Important for sending to Google Apps Script
                     cache: 'no-cache',
