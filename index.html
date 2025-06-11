@@ -1,339 +1,385 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-  <script src="price-table.js"></script>
-  <style>
-    html, body { height: 100%; margin: 0; padding: 0; min-height: 100vh; }
-    body { background: #e5eefb; min-height: 100vh; position: relative; }
-    .form-container { background: #fff; border-radius: 16px; box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06); border: 1px solid #bee3f8; padding: 2rem; position: relative; z-index: 3; }
-    .label-en { font-size:0.98em; color:#2563eb; font-weight: 500; display:block; margin-bottom:0.16em; margin-top:0.05em; letter-spacing: 0.01em; }
-    @media (max-width: 520px) { .form-container { padding: 0.7rem !important; border-radius: 8px; } }
-  </style>
+    <meta charset="UTF-8">
+    <title>ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="price-table.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; min-height: 100vh; }
+        body {
+            background: #e5eefb; min-height: 100vh; position: relative; box-sizing: border-box; overflow-x: hidden;
+        }
+        .bg-logo-bg {
+            pointer-events: none; position: fixed; z-index: 0; left: 0; top: 0; width: 100vw; height: 100vh; overflow: hidden;
+        }
+        .bg-logo-bg-inner {
+            position: absolute; left: 50%; top: 50%; width: 200vw; height: 200vh;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            background-image: url('https://i.postimg.cc/yd4v4YHG/EZ-LOGO-31.png');
+            background-repeat: repeat; background-size: 120px auto; opacity: 0.07; will-change: transform;
+        }
+        .logo-on-top { display: flex; justify-content: center; margin-bottom: 0.7rem; position: relative; z-index: 2; }
+        .logo-on-top img { height: 56px; width: auto; opacity: 0.96; }
+        .form-container {
+            background: #fff; border-radius: 16px; box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06);
+            border: 1px solid #bee3f8; padding: 2rem; position: relative; z-index: 3;
+        }
+        .company-info {
+            background: #fff; border-radius: 12px; margin-top: 2.3rem;
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06); padding: 1.2rem 1.5rem; text-align: center; position: relative; z-index: 3;
+        }
+        .company-info h2 { font-size: 1.3rem; font-weight: bold; color: #da1a32; margin-bottom: 0.2rem; letter-spacing: 0.05em; text-transform: uppercase; }
+        .company-info .en { color: #2563eb; font-weight: 500; font-size: 1rem; margin-bottom: 0.25em; letter-spacing: 0.01em; }
+        .company-info .line { font-size: 1.08em; }
+        .company-info .label { font-weight: 600; }
+        .label-en { font-size:0.98em; color:#2563eb; font-weight: 500; display:block; margin-bottom:0.16em; margin-top:0.05em; letter-spacing: 0.01em; }
+        @media (max-width: 520px) {
+            .form-container, .company-info { padding: 0.7rem !important; border-radius: 8px; }
+        }
+    </style>
 </head>
 <body class="p-4 sm:p-8">
-  <main>
-    <div class="form-container max-w-3xl mx-auto mt-6">
-      <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-widest uppercase">
-        ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI
-        <br>
-        <span class="text-lg font-bold label-en uppercase">WIFI DEVICE RENTAL REGISTRATION FORM</span>
-      </h1>
-      <form id="wifi-form" autocomplete="on" novalidate>
-        <!-- Thông tin người gửi -->
-        <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Họ tên người gửi <span class="label-en">Sender's Name</span>
-            </label>
-            <input type="text" id="sender-name" name="sender-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Email <span class="label-en">Email</span>
-            </label>
-            <input type="email" id="sender-email" name="sender-email" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Số điện thoại <span class="label-en">Phone Number</span>
-            </label>
-            <input type="text" id="sender-phone" name="sender-phone" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Công ty <span class="label-en">Company</span>
-            </label>
-            <input type="text" id="sender-company" name="sender-company" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Khu vực <span class="label-en">Region</span>
-            </label>
-            <input type="text" id="sender-region" name="sender-region" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Mã số thuế <span class="label-en">Tax Code</span>
-            </label>
-            <input type="text" id="sender-taxcode" name="sender-taxcode" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
-          </div>
-        </div>
-        <!-- Đơn đăng ký chi tiết -->
-        <div id="rental-requests-container" class="space-y-8 mb-8"></div>
-        <div class="flex justify-center mb-8">
-          <button id="add-request-btn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 text-md">
-            + Thêm đơn đăng ký mới
-            <span class="label-en text-white/90">+ Add new rental request</span>
-          </button>
-        </div>
-        <div class="flex justify-center">
-          <button id="submit-form-btn" type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center gap-2">
-            <span id="submit-text">
-              Gửi Yêu Cầu
-              <span class="label-en text-white/90">Submit Request</span>
-            </span>
-            <span id="loading-spinner" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
-          </button>
-        </div>
-      </form>
+    <div class="bg-logo-bg"><div class="bg-logo-bg-inner"></div></div>
+    <div class="logo-on-top">
+        <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo">
     </div>
-  </main>
-  <script>
-    const PACKAGE_LIST = [ "1GB/ngày", "5GB/ngày", "10GB/tháng", "20GB/tháng" ];
-    const COUNTRY_LIST = Object.keys(typeof PRICE_TABLE === 'undefined' ? {} : PRICE_TABLE);
-
-    function createCountrySelect(id) {
-      let html = `<select id="${id}" name="${id}" class="choices-country w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-        <option value="">-- Chọn quốc gia / Select country --</option>`;
-      COUNTRY_LIST.forEach(c => html += `<option value="${c}">${c}</option>`);
-      html += `</select>`;
-      return html;
-    }
-    function currency(vnd) {
-      if (!vnd) return "-";
-      return vnd.toLocaleString("vi-VN") + " VND";
-    }
-    function calcDays(from, to) {
-      if (!from || !to) return 1;
-      const d1 = new Date(from), d2 = new Date(to);
-      const ms = d2 - d1;
-      if (ms < 0) return 1;
-      return Math.round(ms/86400000) + 1;
-    }
-    function calcPrice(country, pkg, days) {
-      if (!PRICE_TABLE[country] || !PACKAGE_LIST.includes(pkg)) return null;
-      const unit = PRICE_TABLE[country][pkg];
-      if (!unit) return null;
-      return {days, total: unit * days, unit};
-    }
-    function setupPriceCalc(n) {
-      const countrySel = document.getElementById(`country-${n}`);
-      const pkgSel = document.getElementById(`data-package-${n}`);
-      const fromDate = document.getElementById(`from-date-${n}`);
-      const toDate = document.getElementById(`to-date-${n}`);
-      const daysInput = document.getElementById(`days-${n}`);
-      const priceInfo = document.getElementById(`price-info-${n}`);
-
-      function updatePrice() {
-        const country = countrySel.value;
-        const pkg = pkgSel.value;
-        const from = fromDate.value;
-        const to = toDate.value;
-        const days = calcDays(from, to);
-        daysInput.value = days;
-        const result = calcPrice(country, pkg, days);
-        if (!country || !pkg || !from || !to) {
-          priceInfo.textContent = '';
-          return;
-        }
-        if (result && result.unit) {
-          priceInfo.textContent = `Báo giá sơ bộ: ${currency(result.unit)} x ${days} ngày = ${currency(result.total)}`;
-        } else {
-          priceInfo.textContent = 'Chưa có giá cho lựa chọn này.';
-        }
-      }
-      [countrySel, pkgSel, fromDate, toDate].forEach(el => el.addEventListener('change', updatePrice));
-      updatePrice();
-    }
-
-    let requestCounter = 0;
-    function createRentalRequestSection() {
-      requestCounter++;
-      const n = requestCounter;
-      const section = document.createElement('section');
-      section.className = 'bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-200';
-      section.id = `request-${n}`;
-      section.innerHTML = `
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-blue-800">
-            Đơn ${n}
-            <span class="label-en">Request ${n}</span>
-          </h2>
-          ${n > 1 ? `<button type="button" class="remove-request-btn text-red-500 hover:text-red-700 font-semibold text-sm" title="Xóa đơn này">Xóa <span class="label-en text-red-400">Remove</span></button>` : ''}
+    <div class="company-info max-w-2xl mx-auto mb-4">
+        <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
+        <div class="en">MAYA VIETNAM CO., LTD</div>
+        <div class="line">
+            <span class="label">Địa chỉ:</span> Phòng 1630, Tầng 16, DAEHA BUSINESS CENTER, 360 Kim Mã, Ngọc Khánh, Ba Đình, Hà Nội, Việt Nam
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="user-name-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Tên người dùng <span class="label-en">User Name</span>
-            </label>
-            <input type="text" id="user-name-${n}" name="user-name-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label for="imei-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              IMEI <span class="label-en">IMEI</span>
-            </label>
-            <input type="text" id="imei-${n}" name="imei-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Từ ngày <span class="label-en">From date</span>
-            </label>
-            <input type="date" id="from-date-${n}" name="from-date-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Đến ngày <span class="label-en">To date</span>
-            </label>
-            <input type="date" id="to-date-${n}" name="to-date-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-          </div>
-          <div>
-            <label class="block text-blue-800 text-sm font-semibold mb-2">
-              Số ngày sử dụng <span class="label-en">Usage days</span>
-            </label>
-            <input type="number" id="days-${n}" name="days-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" readonly>
-          </div>
-          <div>
-            <label for="country-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Quốc gia <span class="label-en">Country</span>
-            </label>
-            ${createCountrySelect(`country-${n}`)}
-          </div>
-          <div>
-            <label for="data-package-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Gói data <span class="label-en">Data Package</span>
-            </label>
-            <select id="data-package-${n}" name="data-package-${n}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
-              <option value="">-- Chọn gói data / Select data package --</option>
-              <option value="1GB/ngày">1GB/ngày / 1GB/day</option>
-              <option value="5GB/ngày">5GB/ngày / 5GB/day</option>
-              <option value="10GB/tháng">10GB/tháng / 10GB/month</option>
-              <option value="20GB/tháng">20GB/tháng / 20GB/month</option>
-            </select>
-          </div>
-          <div class="col-span-1 md:col-span-2 mt-2 text-blue-900 font-semibold">
-            <span id="price-info-${n}"></span>
-          </div>
-          <div class="col-span-1 md:col-span-2">
-            <label for="budget-code-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
-              Mã Thanh Toán <span class="label-en">Budget Code</span>
-            </label>
-            <input type="text" id="budget-code-${n}" name="budget-code-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
-          </div>
+        <div class="line en">
+            <span class="label">Address:</span> Room 1630, 16th Floor, DAEHA BUSINESS CENTER, 360 Kim Ma, Ngoc Khanh, Ba Dinh, Hanoi, Vietnam
         </div>
-      `;
-      const removeBtn = section.querySelector('.remove-request-btn');
-      if (removeBtn) removeBtn.addEventListener('click', () => { section.remove(); updateSectionNumbers(); });
-      document.getElementById('rental-requests-container').appendChild(section);
-      setTimeout(() => {
-        document.querySelectorAll('.choices-country').forEach(sel => {
-          if (!sel.classList.contains('choices-initialized')) {
-            new Choices(sel, { searchEnabled: true, shouldSort: true, itemSelectText: '' });
-            sel.classList.add('choices-initialized');
-          }
-        });
-      }, 50);
-      setupPriceCalc(n);
-    }
-    function updateSectionNumbers() {
-      const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg');
-      sections.forEach((section, idx) => {
-        const num = idx + 1;
-        section.querySelector('h2').innerHTML = `Đơn ${num} <span class="label-en">Request ${num}</span>`;
-        section.querySelectorAll('input,select').forEach(input => {
-          let base = input.id.replace(/-\d+$/, '');
-          input.id = `${base}-${num}`; input.name = `${base}-${num}`;
-          const label = section.querySelector(`label[for="${input.id}"]`);
-          if (label) label.setAttribute('for', input.id);
-        });
-      });
-      requestCounter = sections.length;
-    }
+        <div class="line">
+            <span class="label">Hotline:</span> 0962 000 650 (Tiếng Việt) &nbsp;|&nbsp; 0365 399 288 (Tiếng Nhật)
+        </div>
+        <div class="line en">
+            <span class="label">Hotline:</span> 0962 000 650 (Vietnamese) &nbsp;|&nbsp; 0365 399 288 (Japanese)
+        </div>
+    </div>
+    <main>
+        <div class="form-container max-w-3xl mx-auto mt-6">
+            <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-widest uppercase">
+                ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI
+                <br>
+                <span class="text-lg font-bold label-en uppercase">WIFI DEVICE RENTAL REGISTRATION FORM</span>
+            </h1>
+            <form id="wifi-form" autocomplete="on" novalidate>
+                <!-- Thông tin người gửi -->
+                <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Họ tên người gửi <span class="label-en">Sender's Name</span>
+                        </label>
+                        <input type="text" id="sender-name" name="sender-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Email <span class="label-en">Email</span>
+                        </label>
+                        <input type="email" id="sender-email" name="sender-email" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Số điện thoại <span class="label-en">Phone Number</span>
+                        </label>
+                        <input type="text" id="sender-phone" name="sender-phone" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Công ty <span class="label-en">Company</span>
+                        </label>
+                        <input type="text" id="sender-company" name="sender-company" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Khu vực <span class="label-en">Region</span>
+                        </label>
+                        <input type="text" id="sender-region" name="sender-region" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Mã số thuế <span class="label-en">Tax Code</span>
+                        </label>
+                        <input type="text" id="sender-taxcode" name="sender-taxcode" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+                    </div>
+                </div>
+                <!-- Đơn đăng ký chi tiết -->
+                <div id="rental-requests-container" class="space-y-8 mb-8"></div>
+                <div class="flex justify-center mb-8">
+                    <button id="add-request-btn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 text-md">
+                        + Thêm đơn đăng ký mới
+                        <span class="label-en text-white/90">+ Add new rental request</span>
+                    </button>
+                </div>
+                <div class="flex justify-center">
+                    <button id="submit-form-btn" type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center gap-2">
+                        <span id="submit-text">
+                            Gửi Yêu Cầu
+                            <span class="label-en text-white/90">Submit Request</span>
+                        </span>
+                        <span id="loading-spinner" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <script>
+        const PACKAGE_LIST = [ "1GB/ngày", "5GB/ngày", "10GB/tháng", "20GB/tháng" ];
+        const COUNTRY_LIST = Object.keys(typeof PRICE_TABLE === 'undefined' ? {} : PRICE_TABLE);
 
-    document.addEventListener('DOMContentLoaded', () => {
-      createRentalRequestSection();
-      document.getElementById('add-request-btn').addEventListener('click', () => { createRentalRequestSection(); });
+        function createCountrySelect(id) {
+            let html = `<select id="${id}" name="${id}" class="choices-country w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                <option value="">-- Chọn quốc gia / Select country --</option>`;
+            COUNTRY_LIST.forEach(c => html += `<option value="${c}">${c}</option>`);
+            html += `</select>`;
+            return html;
+        }
+        function currency(vnd) {
+            if (!vnd) return "-";
+            return vnd.toLocaleString("vi-VN") + " VND";
+        }
+        function calcDays(from, to) {
+            if (!from || !to) return 1;
+            const d1 = new Date(from), d2 = new Date(to);
+            const ms = d2 - d1;
+            if (ms < 0) return 1;
+            return Math.round(ms/86400000) + 1;
+        }
+        function calcPrice(country, pkg, days) {
+            if (!PRICE_TABLE[country] || !PACKAGE_LIST.includes(pkg)) return null;
+            const unit = PRICE_TABLE[country][pkg];
+            if (!unit) return null;
+            return {days, total: unit * days, unit};
+        }
+        function setupPriceCalc(n) {
+            const countrySel = document.getElementById(`country-${n}`);
+            const pkgSel = document.getElementById(`data-package-${n}`);
+            const fromDate = document.getElementById(`from-date-${n}`);
+            const toDate = document.getElementById(`to-date-${n}`);
+            const daysInput = document.getElementById(`days-${n}`);
+            const priceInfo = document.getElementById(`price-info-${n}`);
 
-      // Handle submit
-      document.getElementById('wifi-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        document.getElementById('submit-form-btn').disabled = true;
-        document.getElementById('loading-spinner').classList.remove('hidden');
-        document.getElementById('submit-text').style.opacity = 0.5;
-
-        // Lấy thông tin người gửi
-        const sender = {
-          name: document.getElementById('sender-name').value.trim(),
-          email: document.getElementById('sender-email').value.trim(),
-          phone: document.getElementById('sender-phone').value.trim(),
-          company: document.getElementById('sender-company').value.trim(),
-          region: document.getElementById('sender-region').value.trim(),
-          taxCode: document.getElementById('sender-taxcode').value.trim()
-        };
-
-        // Validate
-        if (!sender.name || !sender.email || !sender.phone) {
-          Swal.fire("Thiếu thông tin", "Vui lòng nhập đủ họ tên, email và số điện thoại!", "warning");
-          document.getElementById('submit-form-btn').disabled = false;
-          document.getElementById('loading-spinner').classList.add('hidden');
-          document.getElementById('submit-text').style.opacity = 1;
-          return;
+            function updatePrice() {
+                const country = countrySel.value;
+                const pkg = pkgSel.value;
+                const from = fromDate.value;
+                const to = toDate.value;
+                const days = calcDays(from, to);
+                daysInput.value = days;
+                const result = calcPrice(country, pkg, days);
+                if (!country || !pkg || !from || !to) {
+                    priceInfo.textContent = '';
+                    return;
+                }
+                if (result && result.unit) {
+                    priceInfo.textContent = `Báo giá sơ bộ: ${currency(result.unit)} x ${days} ngày = ${currency(result.total)}`;
+                } else {
+                    priceInfo.textContent = 'Chưa có giá cho lựa chọn này.';
+                }
+            }
+            [countrySel, pkgSel, fromDate, toDate].forEach(el => el.addEventListener('change', updatePrice));
+            updatePrice();
         }
 
-        // Lấy thông tin từng đơn thuê
-        const reqSections = document.querySelectorAll('[id^="request-"]');
-        const rentalRequests = [];
-        let valid = true;
-        reqSections.forEach((section, idx) => {
-          const n = idx + 1;
-          const req = {
-            requestNumber: n,
-            userName: section.querySelector(`#user-name-${n}`).value.trim(),
-            imei: section.querySelector(`#imei-${n}`).value.trim(),
-            fromDate: section.querySelector(`#from-date-${n}`).value,
-            toDate: section.querySelector(`#to-date-${n}`).value,
-            days: Number(section.querySelector(`#days-${n}`).value) || 1,
-            country: section.querySelector(`#country-${n}`).value,
-            dataPackage: section.querySelector(`#data-package-${n}`).value,
-            budgetCode: section.querySelector(`#budget-code-${n}`).value.trim()
-          };
-          if (!req.userName || !req.imei || !req.fromDate || !req.toDate || !req.country || !req.dataPackage) valid = false;
-          rentalRequests.push(req);
+        let requestCounter = 0;
+        function createRentalRequestSection() {
+            requestCounter++;
+            const n = requestCounter;
+            const section = document.createElement('section');
+            section.className = 'bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-200';
+            section.id = `request-${n}`;
+            section.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-800">
+                        Đơn ${n}
+                        <span class="label-en">Request ${n}</span>
+                    </h2>
+                    ${n > 1 ? `<button type="button" class="remove-request-btn text-red-500 hover:text-red-700 font-semibold text-sm" title="Xóa đơn này">Xóa <span class="label-en text-red-400">Remove</span></button>` : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="user-name-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+                            Tên người dùng <span class="label-en">User Name</span>
+                        </label>
+                        <input type="text" id="user-name-${n}" name="user-name-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label for="imei-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+                            IMEI <span class="label-en">IMEI</span>
+                        </label>
+                        <input type="text" id="imei-${n}" name="imei-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Từ ngày <span class="label-en">From date</span>
+                        </label>
+                        <input type="date" id="from-date-${n}" name="from-date-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Đến ngày <span class="label-en">To date</span>
+                        </label>
+                        <input type="date" id="to-date-${n}" name="to-date-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">
+                            Số ngày sử dụng <span class="label-en">Usage days</span>
+                        </label>
+                        <input type="number" id="days-${n}" name="days-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" readonly>
+                    </div>
+                    <div>
+                        <label for="country-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+                            Quốc gia <span class="label-en">Country</span>
+                        </label>
+                        ${createCountrySelect(`country-${n}`)}
+                    </div>
+                    <div>
+                        <label for="data-package-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+                            Gói data <span class="label-en">Data Package</span>
+                        </label>
+                        <select id="data-package-${n}" name="data-package-${n}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900" required>
+                            <option value="">-- Chọn gói data / Select data package --</option>
+                            <option value="1GB/ngày">1GB/ngày / 1GB/day</option>
+                            <option value="5GB/ngày">5GB/ngày / 5GB/day</option>
+                            <option value="10GB/tháng">10GB/tháng / 10GB/month</option>
+                            <option value="20GB/tháng">20GB/tháng / 20GB/month</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 mt-2 text-blue-900 font-semibold">
+                        <span id="price-info-${n}"></span>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label for="budget-code-${n}" class="block text-blue-800 text-sm font-semibold mb-2">
+                            Mã Thanh Toán <span class="label-en">Budget Code</span>
+                        </label>
+                        <input type="text" id="budget-code-${n}" name="budget-code-${n}" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900">
+                    </div>
+                </div>
+            `;
+            const removeBtn = section.querySelector('.remove-request-btn');
+            if (removeBtn) removeBtn.addEventListener('click', () => { section.remove(); updateSectionNumbers(); });
+            document.getElementById('rental-requests-container').appendChild(section);
+            setTimeout(() => {
+                document.querySelectorAll('.choices-country').forEach(sel => {
+                    if (!sel.classList.contains('choices-initialized')) {
+                        new Choices(sel, { searchEnabled: true, shouldSort: true, itemSelectText: '' });
+                        sel.classList.add('choices-initialized');
+                    }
+                });
+            }, 50);
+            setupPriceCalc(n);
+        }
+        function updateSectionNumbers() {
+            const sections = document.getElementById('rental-requests-container').querySelectorAll('.bg-blue-50.p-6, .bg-blue-50.p-6.rounded-lg');
+            sections.forEach((section, idx) => {
+                const num = idx + 1;
+                section.querySelector('h2').innerHTML = `Đơn ${num} <span class="label-en">Request ${num}</span>`;
+                section.querySelectorAll('input,select').forEach(input => {
+                    let base = input.id.replace(/-\d+$/, '');
+                    input.id = `${base}-${num}`; input.name = `${base}-${num}`;
+                    const label = section.querySelector(`label[for="${input.id}"]`);
+                    if (label) label.setAttribute('for', input.id);
+                });
+            });
+            requestCounter = sections.length;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createRentalRequestSection();
+            document.getElementById('add-request-btn').addEventListener('click', () => { createRentalRequestSection(); });
+
+            // Handle submit
+            document.getElementById('wifi-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                document.getElementById('submit-form-btn').disabled = true;
+                document.getElementById('loading-spinner').classList.remove('hidden');
+                document.getElementById('submit-text').style.opacity = 0.5;
+
+                // Lấy thông tin người gửi
+                const sender = {
+                    name: document.getElementById('sender-name').value.trim(),
+                    email: document.getElementById('sender-email').value.trim(),
+                    phone: document.getElementById('sender-phone').value.trim(),
+                    company: document.getElementById('sender-company').value.trim(),
+                    region: document.getElementById('sender-region').value.trim(),
+                    taxCode: document.getElementById('sender-taxcode').value.trim()
+                };
+
+                // Validate
+                if (!sender.name || !sender.email || !sender.phone) {
+                    Swal.fire("Thiếu thông tin", "Vui lòng nhập đủ họ tên, email và số điện thoại!", "warning");
+                    document.getElementById('submit-form-btn').disabled = false;
+                    document.getElementById('loading-spinner').classList.add('hidden');
+                    document.getElementById('submit-text').style.opacity = 1;
+                    return;
+                }
+
+                // Lấy thông tin từng đơn thuê
+                const reqSections = document.querySelectorAll('[id^="request-"]');
+                const rentalRequests = [];
+                let valid = true;
+                reqSections.forEach((section, idx) => {
+                    const n = idx + 1;
+                    const req = {
+                        requestNumber: n,
+                        userName: section.querySelector(`#user-name-${n}`).value.trim(),
+                        imei: section.querySelector(`#imei-${n}`).value.trim(),
+                        fromDate: section.querySelector(`#from-date-${n}`).value,
+                        toDate: section.querySelector(`#to-date-${n}`).value,
+                        days: Number(section.querySelector(`#days-${n}`).value) || 1,
+                        country: section.querySelector(`#country-${n}`).value,
+                        dataPackage: section.querySelector(`#data-package-${n}`).value,
+                        budgetCode: section.querySelector(`#budget-code-${n}`).value.trim()
+                    };
+                    if (!req.userName || !req.imei || !req.fromDate || !req.toDate || !req.country || !req.dataPackage) valid = false;
+                    rentalRequests.push(req);
+                });
+                if (!valid) {
+                    Swal.fire("Thiếu thông tin", "Vui lòng kiểm tra lại các đơn đăng ký!", "warning");
+                    document.getElementById('submit-form-btn').disabled = false;
+                    document.getElementById('loading-spinner').classList.add('hidden');
+                    document.getElementById('submit-text').style.opacity = 1;
+                    return;
+                }
+
+                // Chuẩn bị dữ liệu gửi
+                const payload = {
+                    globalSenderInfo: sender,
+                    rentalRequests,
+                    submissionTime: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" })
+                };
+
+                try {
+                    // Thay URL bên dưới bằng URL Apps Script Web App của bạn!
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbzMnwt3b6o09uRkzZyMeKEf7HvZbzLSQXKBXLoLo6JYoljnKM8F-1pNt6MHgA7zpKTlxA/exec';
+                    const res = await fetch(scriptURL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    const json = await res.json();
+                    if (json.status === "OK") {
+                        Swal.fire("Thành công!", "Đơn đăng ký đã được gửi thành công.<br>Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất.", "success");
+                        document.getElementById('wifi-form').reset();
+                    } else {
+                        Swal.fire("Lỗi", json.message || "Đã xảy ra lỗi khi gửi đơn!", "error");
+                    }
+                } catch (err) {
+                    Swal.fire("Lỗi", "Không gửi được dữ liệu. Vui lòng thử lại hoặc liên hệ hỗ trợ.", "error");
+                }
+                document.getElementById('submit-form-btn').disabled = false;
+                document.getElementById('loading-spinner').classList.add('hidden');
+                document.getElementById('submit-text').style.opacity = 1;
+            });
         });
-        if (!valid) {
-          Swal.fire("Thiếu thông tin", "Vui lòng kiểm tra lại các đơn đăng ký!", "warning");
-          document.getElementById('submit-form-btn').disabled = false;
-          document.getElementById('loading-spinner').classList.add('hidden');
-          document.getElementById('submit-text').style.opacity = 1;
-          return;
-        }
-
-        // Chuẩn bị dữ liệu gửi
-        const payload = {
-          globalSenderInfo: sender,
-          rentalRequests,
-          submissionTime: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" })
-        };
-
-        try {
-          // Thay URL bên dưới bằng URL Apps Script Web App của bạn!
-          const scriptURL = 'https://script.google.com/macros/s/AKfycbzMnwt3b6o09uRkzZyMeKEf7HvZbzLSQXKBXLoLo6JYoljnKM8F-1pNt6MHgA7zpKTlxA/exec';
-          const res = await fetch(scriptURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          const json = await res.json();
-          if (json.status === "OK") {
-            Swal.fire("Thành công!", "Đơn đăng ký đã được gửi thành công.<br>Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất.", "success");
-            document.getElementById('wifi-form').reset();
-          } else {
-            Swal.fire("Lỗi", json.message || "Đã xảy ra lỗi khi gửi đơn!", "error");
-          }
-        } catch (err) {
-          Swal.fire("Lỗi", "Không gửi được dữ liệu. Vui lòng thử lại hoặc liên hệ hỗ trợ.", "error");
-        }
-        document.getElementById('submit-form-btn').disabled = false;
-        document.getElementById('loading-spinner').classList.add('hidden');
-        document.getElementById('submit-text').style.opacity = 1;
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
