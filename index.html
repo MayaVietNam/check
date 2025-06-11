@@ -402,7 +402,7 @@
 
         try {
           // Thay URL bên dưới bằng URL Apps Script Web App của bạn!
-          const scriptURL = 'https://script.google.com/macros/s/AKfycbxvPfeyyTtLy0ux6wQ1ldJS3vtEhl6AwKU2uoyFLgvI3zOWBrZq-PMBEA88yYTmX5eLMw/exec';
+          const scriptURL = 'https://script.google.com/macros/s/AKfycbywN6w2tIZaPugaReOiDNiVVUmrWMXO602j2-B5mK5HMl5fItIYBzFZvTC6J55nqKjbTQ/exec';
           const res = await fetch(scriptURL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -433,3 +433,43 @@
     </script>
 </body>
 </html>
+<!-- ...toàn bộ phần đầu giữ nguyên như bạn đã có... -->
+<script>
+    // ...tất cả các hàm JavaScript cũ không đổi...
+    document.addEventListener('DOMContentLoaded', () => {
+      createRentalRequestSection();
+      document.getElementById('add-request-btn').addEventListener('click', () => { createRentalRequestSection(); });
+
+      // Xử lý submit
+      document.getElementById('wifi-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        document.getElementById('submit-form-btn').disabled = true;
+        document.getElementById('loading-spinner').classList.remove('hidden');
+        document.getElementById('submit-text').style.opacity = 0.5;
+
+        // ...lấy dữ liệu form như cũ...
+
+        // Chuẩn bị dữ liệu gửi
+        const payload = {
+          globalSenderInfo: sender,
+          rentalRequests,
+          submissionTime: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" })
+        };
+
+        try {
+          // Thay link thật vào đây!
+          const scriptURL = 'https://script.google.com/macros/s/AKfycbywN6w2tIZaPugaReOiDNiVVUmrWMXO602j2-B5mK5HMl5fItIYBzFZvTC6J55nqKjbTQ/exec';
+          const res = await fetch(scriptURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          // ...xử lý kết quả như cũ...
+        } catch (err) {
+          // ...xử lý lỗi như cũ...
+        }
+        // ...reset trạng thái nút như cũ...
+      });
+    });
+</script>
+<!-- ...phần còn lại giữ nguyên... -->
