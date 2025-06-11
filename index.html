@@ -31,11 +31,11 @@
         }
         .company-info {
             background: #fff; border-radius: 12px; margin-top: 2.3rem;
-            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06); padding: 1.2rem 1.5rem; text-align: center; position: relative; z-index: 3;
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06); padding: 0.7rem 0.9rem; text-align: center; position: relative; z-index: 3;
+            font-size: 0.95em;
         }
-        .company-info h2 { font-size: 1.3rem; font-weight: bold; color: #da1a32; margin-bottom: 0.2rem; letter-spacing: 0.05em; text-transform: uppercase; }
-        .company-info .en { color: #2563eb; font-weight: 500; font-size: 1rem; margin-bottom: 0.25em; letter-spacing: 0.01em; }
-        .company-info .line { font-size: 1.08em; }
+        .company-info h2 { font-size: 1.03rem; }
+        .company-info .en, .company-info .line { font-size: 0.96em; }
         .company-info .label { font-weight: 600; }
         .label-en { font-size:0.98em; color:#2563eb; font-weight: 500; display:block; margin-bottom:0.16em; margin-top:0.05em; letter-spacing: 0.01em; }
         @media (max-width: 520px) {
@@ -359,13 +359,21 @@
 
                 try {
                     // Thay URL bên dưới bằng URL Apps Script Web App của bạn!
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbzMnwt3b6o09uRkzZyMeKEf7HvZbzLSQXKBXLoLo6JYoljnKM8F-1pNt6MHgA7zpKTlxA/exec';
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbxMzq_I5w421OX-yp6XVR4GUoBVMYvpuhRAVc8wAnrlxGZkh0faP9sjdT6czzsAh068WQ/exec';
                     const res = await fetch(scriptURL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
                     });
-                    const json = await res.json();
+                    // Nếu server trả về text, hãy thử đổi sang .text() và parse JSON
+                    let json;
+                    try {
+                        json = await res.json();
+                    } catch {
+                        const txt = await res.text();
+                        json = {};
+                        try { json = JSON.parse(txt); } catch {}
+                    }
                     if (json.status === "OK") {
                         Swal.fire("Thành công!", "Đơn đăng ký đã được gửi thành công.<br>Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất.", "success");
                         document.getElementById('wifi-form').reset();
