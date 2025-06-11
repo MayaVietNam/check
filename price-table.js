@@ -134,4 +134,14 @@ const PRICE_TABLE = {
   "El Salvador": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
   "Uruguay": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null },
   "Venezuela": { "1GB/ngày": 189000, "5GB/ngày": 252000, "10GB/tháng": null, "20GB/tháng": null }
-};
+const scriptURL = 'https://script.google.com/macros/s/AKfycbzwVMha8vSLAoUACkEo8oTd3TueOgOi2XInxp_GQGAzCUjp2daWUWlARE7MpmcCPTUpiw/exec';
+
+fetch(scriptURL, {
+  method: 'POST',
+  body: JSON.stringify(data), // data là dữ liệu form
+  headers: { 'Content-Type': 'application/json' }
+})
+.then(response => response.json())
+.then(result => {
+  // xử lý kết quả
+});};
