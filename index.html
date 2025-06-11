@@ -29,40 +29,42 @@
             background: #fff; border-radius: 16px; box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06);
             border: 1px solid #bee3f8; padding: 2rem; position: relative; z-index: 3;
         }
-        .company-info {
-            background: #fff; border-radius: 12px; margin-top: 2.3rem;
-            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.06); padding: 0.7rem 0.9rem; text-align: center; position: relative; z-index: 3;
-            font-size: 0.95em;
+        .footer-company-info {
+            font-size: 0.94em;
+            background: linear-gradient(90deg, #fbeff0 0%, #dbeafe 100%);
+            color: #0c2245;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 0 8px 0 #0002;
+            padding: 0.7rem 1.1rem 0.8rem 1.1rem;
+            margin: 2.2rem auto 0 auto;
+            text-align: center;
+            max-width: 600px;
+            border-top: 3px solid #da1a32;
+            border-left: 1.5px solid #c7e0fb;
+            border-right: 1.5px solid #c7e0fb;
         }
-        .company-info h2 { font-size: 1.03rem; }
-        .company-info .en, .company-info .line { font-size: 0.96em; }
-        .company-info .label { font-weight: 600; }
-        .label-en { font-size:0.98em; color:#2563eb; font-weight: 500; display:block; margin-bottom:0.16em; margin-top:0.05em; letter-spacing: 0.01em; }
+        .footer-company-info h2 {
+            font-size: 1.04rem;
+            font-weight: bold;
+            color: #da1a32;
+            margin-bottom: 0.12rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .footer-company-info .en { color: #2563eb; font-weight: 500; font-size: 0.98em; margin-bottom: 0.2em; letter-spacing: 0.01em; }
+        .footer-company-info .line { font-size: 1em; margin-bottom: 2px;}
+        .footer-company-info .label { font-weight: 600; }
         @media (max-width: 520px) {
-            .form-container, .company-info { padding: 0.7rem !important; border-radius: 8px; }
+            .form-container, .footer-company-info { padding: 0.7rem !important; border-radius: 8px; }
+            .footer-company-info { font-size: 0.89em; }
         }
+        .label-en { font-size:0.98em; color:#2563eb; font-weight: 500; display:block; margin-bottom:0.16em; margin-top:0.05em; letter-spacing: 0.01em; }
     </style>
 </head>
 <body class="p-4 sm:p-8">
     <div class="bg-logo-bg"><div class="bg-logo-bg-inner"></div></div>
     <div class="logo-on-top">
         <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo">
-    </div>
-    <div class="company-info max-w-2xl mx-auto mb-4">
-        <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
-        <div class="en">MAYA VIETNAM CO., LTD</div>
-        <div class="line">
-            <span class="label">Địa chỉ:</span> Phòng 1630, Tầng 16, DAEHA BUSINESS CENTER, 360 Kim Mã, Ngọc Khánh, Ba Đình, Hà Nội, Việt Nam
-        </div>
-        <div class="line en">
-            <span class="label">Address:</span> Room 1630, 16th Floor, DAEHA BUSINESS CENTER, 360 Kim Ma, Ngoc Khanh, Ba Dinh, Hanoi, Vietnam
-        </div>
-        <div class="line">
-            <span class="label">Hotline:</span> 0962 000 650 (Tiếng Việt) &nbsp;|&nbsp; 0365 399 288 (Tiếng Nhật)
-        </div>
-        <div class="line en">
-            <span class="label">Hotline:</span> 0962 000 650 (Vietnamese) &nbsp;|&nbsp; 0365 399 288 (Japanese)
-        </div>
     </div>
     <main>
         <div class="form-container max-w-3xl mx-auto mt-6">
@@ -131,6 +133,27 @@
             </form>
         </div>
     </main>
+    <!-- ĐỊA CHỈ CÔNG TY DƯỚI CÙNG TRANG -->
+    <footer>
+        <div class="footer-company-info">
+            <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
+            <div class="en">MAYA VIETNAM CO., LTD</div>
+            <div class="line">
+                <span class="label">Địa chỉ:</span> Phòng 1630, Tầng 16, DAEHA BUSINESS CENTER, 360 Kim Mã, Ngọc Khánh, Ba Đình, Hà Nội, Việt Nam
+            </div>
+            <div class="line en">
+                <span class="label">Address:</span> Room 1630, 16th Floor, DAEHA BUSINESS CENTER, 360 Kim Ma, Ngoc Khanh, Ba Dinh, Hanoi, Vietnam
+            </div>
+            <div class="line">
+                <span class="label">Hotline:</span> <span style="color:#da1a32;font-weight:bold;">0962 000 650</span> (Tiếng Việt) &nbsp;|&nbsp;
+                <span style="color:#2563eb;font-weight:bold;">0365 399 288</span> (Tiếng Nhật)
+            </div>
+            <div class="line en">
+                <span class="label">Hotline:</span> <span style="color:#da1a32;font-weight:bold;">0962 000 650</span> (Vietnamese) &nbsp;|&nbsp;
+                <span style="color:#2563eb;font-weight:bold;">0365 399 288</span> (Japanese)
+            </div>
+        </div>
+    </footer>
     <script>
         const PACKAGE_LIST = [ "1GB/ngày", "5GB/ngày", "10GB/tháng", "20GB/tháng" ];
         const COUNTRY_LIST = Object.keys(typeof PRICE_TABLE === 'undefined' ? {} : PRICE_TABLE);
@@ -180,7 +203,7 @@
                     return;
                 }
                 if (result && result.unit) {
-                    priceInfo.textContent = `Báo giá sơ bộ: ${currency(result.unit)} x ${days} ngày = ${currency(result.total)}`;
+                    priceInfo.textContent = `Báo giá sơ bộ: <span style="color:#da1a32;font-weight:bold;">${currency(result.unit)}</span> x <span style="color:#2563eb;font-weight:bold;">${days} ngày</span> = <span style="color:#0c2245;font-weight:bold;">${currency(result.total)}</span>`;
                 } else {
                     priceInfo.textContent = 'Chưa có giá cho lựa chọn này.';
                 }
@@ -365,7 +388,6 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
                     });
-                    // Nếu server trả về text, hãy thử đổi sang .text() và parse JSON
                     let json;
                     try {
                         json = await res.json();
