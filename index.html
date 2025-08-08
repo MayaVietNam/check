@@ -378,8 +378,9 @@ function RentalRequestSection({ request, index, onChange, onRemove, showRemoveBu
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input id={`user-name-${request.id}`} label="Tên người dùng" subLabel="User Name" value={request.userName} onChange={e => onChange(request.id, 'userName', e.target.value)} required />
                 <Input id={`imei-${request.id}`} label="IMEI" subLabel="(Optional)" value={request.imei} onChange={e => onChange(request.id, 'imei', e.target.value)} />
-                <Input id={`from-date-${request.id}`} label="Từ ngày" subLabel="From date" type="date" value={request.fromDate} onChange={e => onChange(request.id, 'fromDate', e.target.value)} required />
-                <Input id={`to-date-${request.id}`} label="Đến ngày" subLabel="To date" type="date" value={request.toDate} onChange={e => onChange(request.id, 'toDate', e.target.value)} required />
+                {/* FIX: Use `|| ''` to prevent passing null/undefined to the value prop of the date input */}
+                <Input id={`from-date-${request.id}`} label="Từ ngày" subLabel="From date" type="date" value={request.fromDate || ''} onChange={e => onChange(request.id, 'fromDate', e.target.value)} required />
+                <Input id={`to-date-${request.id}`} label="Đến ngày" subLabel="To date" type="date" value={request.toDate || ''} onChange={e => onChange(request.id, 'toDate', e.target.value)} required />
                 <Select id={`country-${request.id}`} label="Quốc gia" subLabel="Country" value={request.country} onChange={e => onChange(request.id, 'country', e.target.value)} required>
                     <option value="">-- Chọn quốc gia --</option>
                     {COUNTRY_LIST.map(c => <option key={c} value={c}>{c}</option>)}
