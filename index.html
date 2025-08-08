@@ -241,7 +241,7 @@
             const unit = PRICE_TABLE[country][pkg];
             if (unit === undefined) return null;
             const total = unit * days;
-            const vat = Math.round(total * 0.08); // Assuming 8% VAT as is common now, change to 0.1 for 10%
+            const vat = Math.round(total * 0.1); // Assuming 10% VAT as is common now, change to 0.1 for 10%
             const grandTotal = total + vat;
             return { days, total, unitPrice: unit, vat, grandTotal };
         };
