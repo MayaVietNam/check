@@ -1,503 +1,615 @@
-import React from 'react';
-import { initializeApp } from 'firebase/app';
-import { 
-    getAuth, 
-    onAuthStateChanged, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut 
-} from 'firebase/auth';
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    addDoc, 
-    collection, 
-    query, 
-    where, 
-    getDocs,
-    serverTimestamp,
-    orderBy
-} from 'firebase/firestore';
-// This line now correctly links to your price data file.
-// Please create 'price-table.js' in your 'src' folder.
-import { PRICE_TABLE } from './price-table.js';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>ĐƠN ĐĂNG KÝ THUÊ THIẾT BỊ WIFI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Nạp file bảng giá của bạn tại đây -->
+    <script src="price-table.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+        html, body { height: 100%; margin: 0; padding: 0; font-family: 'Be Vietnam Pro', sans-serif; }
+        body {
+            background-color: #f0f4f8; position: relative; box-sizing: border-box; overflow-x: hidden;
+        }
+        .bg-logo-bg {
+            pointer-events: none; position: fixed; z-index: 0; left: 0; top: 0; width: 100vw; height: 100vh; overflow: hidden;
+        }
+        .bg-logo-bg-inner {
+            position: absolute; left: 50%; top: 50%; width: 200vw; height: 200vh;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background-image: url('https://i.postimg.cc/yd4v4YHG/EZ-LOGO-31.png');
+            background-repeat: repeat; background-size: 150px auto; opacity: 0.05; will-change: transform;
+        }
+        .logo-on-top { display: flex; justify-content: center; margin-bottom: 1rem; position: relative; z-index: 2; }
+        .logo-on-top img { height: 60px; width: auto; opacity: 0.98; }
+        .form-container {
+            background: #ffffff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0, 83, 156, 0.12);
+            border: 1px solid #e2e8f0; padding: 2.5rem; position: relative; z-index: 3;
+        }
+        .label-en { font-size:0.9em; color:#1e40af; font-weight: 500; display:block; margin-top:0.1em; letter-spacing: 0.01em; opacity: 0.9; }
+        .price-info-highlight { background: #eff6ff; color: #1e3a8a; font-weight: bold; border-radius: 8px; padding: 0.75rem 1rem; margin-top: 8px; display: inline-block; border-left: 4px solid #3b82f6; }
+        .footer-company-info {
+            font-size: 0.95em; color: #475569; padding: 1.5rem; margin: 2.5rem auto 0 auto;
+            text-align: center; max-width: 650px;
+        }
+        .footer-company-info h2 {
+            font-size: 1.25rem; font-weight: 800; color: #dc2626; margin-bottom: 0.25rem;
+            letter-spacing: 0.03em; text-transform: uppercase;
+        }
+        .footer-company-info .en { color: #1e40af; font-weight: 600; font-size: 1.05em; margin-bottom: 0.5rem; letter-spacing: 0.01em; }
+        .footer-company-info .line { margin-bottom: 4px; }
+        .footer-company-info .label { font-weight: 600; color: #1e293b; }
 
-// --- IMPORTANT: PASTE YOUR FIREBASE CONFIG HERE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyD6klJQWIelTCbST1JRsjxYkbgzA4sTgIU",
-  authDomain: "ezfi-3c0f9.firebaseapp.com",
-  databaseURL: "https://ezfi-3c0f9-default-rtdb.firebaseio.com",
-  projectId: "ezfi-3c0f9",
-  storageBucket: "ezfi-3c0f9.firebasestorage.app",
-  messagingSenderId: "446492840639",
-  appId: "1:446492840639:web:fba244ba9421a31dc7ec0a",
-  measurementId: "G-Y5LY63RZCB"
-};
+        /* History Modal Styles */
+        #history-modal {
+            background: rgba(0,0,0,0.5); transition: opacity 0.3s ease;
+        }
+        .history-card {
+            border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .history-card-header {
+            cursor: pointer; padding: 1rem 1.5rem;
+        }
+        .history-card-body {
+            max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1.5rem;
+        }
+        .history-card.open .history-card-body {
+            max-height: 1000px; /* Large enough for content */
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
+        }
+        .history-card.open .details-arrow {
+            transform: rotate(180deg);
+        }
 
-// --- APP CONSTANTS (DERIVED FROM YOUR PRICE DATA) ---
-const COUNTRY_LIST = Object.keys(PRICE_TABLE).sort(); 
-const PACKAGE_LIST = ["500MB/ngày", "1GB/ngày", "5GB/ngày"];
+        @media (max-width: 520px) {
+            .form-container, .footer-company-info { padding: 1.5rem !important; border-radius: 16px; }
+            .footer-company-info { font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="bg-logo-bg"><div class="bg-logo-bg-inner"></div></div>
 
-
-// --- Initialize Firebase ---
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// --- Helper Functions ---
-const currency = (val) => val != null ? Number(val).toLocaleString("vi-VN") + " VND" : "-";
-
-const calcDays = (from, to) => {
-    if (!from || !to) return 1;
-    const d1 = new Date(from + 'T00:00:00Z');
-    const d2 = new Date(to + 'T00:00:00Z');
-    const ms = d2.getTime() - d1.getTime();
-    if (ms < 0) return 1;
-    return Math.round(ms / 86400000) + 1;
-};
-
-// This function now uses the imported PRICE_TABLE
-const calcPrice = (country, pkg, days) => {
-    if (!PRICE_TABLE[country] || !PRICE_TABLE[country][pkg] || !days) {
-        return null;
-    }
-    const unit = PRICE_TABLE[country][pkg];
-    const total = unit * days;
-    const vat = Math.round(total * 0.1);
-    const grandTotal = total + vat;
-    return { days, total, unitPrice: unit, vat, grandTotal };
-};
-
-// --- React Components ---
-
-// Reusable Input Component
-const Input = ({ label, subLabel, id, ...props }) => (
-    <div>
-        <label htmlFor={id} className="block text-sm font-semibold text-blue-800 mb-1">
-            {label} <span className="text-xs font-medium text-blue-500">{subLabel}</span>
-        </label>
-        <input id={id} className="w-full px-4 py-2 border border-blue-200 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition" {...props} />
+    <div class="logo-on-top">
+        <a href="https://global-ez.com/" target="_blank">
+            <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo">
+        </a>
     </div>
-);
 
-// Reusable Select Component
-const Select = ({ label, subLabel, id, children, ...props }) => (
-    <div>
-        <label htmlFor={id} className="block text-sm font-semibold text-blue-800 mb-1">
-            {label} <span className="text-xs font-medium text-blue-500">{subLabel}</span>
-        </label>
-        <select id={id} className="w-full px-4 py-2 border border-blue-200 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition" {...props}>
-            {children}
-        </select>
-    </div>
-);
-
-// Loading Spinner
-const Spinner = () => <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>;
-
-// Main App Component
-function App() {
-    const [user, setUser] = React.useState(null);
-    const [loading, setLoading] = React.useState(true);
-    const [page, setPage] = React.useState('form'); // 'form', 'history', 'login'
-
-    React.useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-            setLoading(false);
-            if (user) {
-                setPage('form');
-            } else {
-                setPage('login');
-            }
-        });
-        return () => unsubscribe();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="text-xl font-semibold">Loading Application...</div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-e5eefb font-sans relative">
-             <div className="bg-logo-bg fixed inset-0 pointer-events-none z-0">
-                <div 
-                    className="absolute left-1/2 top-1/2 w-[200vw] h-[200vh] transform -translate-x-1/2 -translate-y-1/2 -rotate-10 bg-repeat opacity-[0.07]"
-                    style={{backgroundImage: "url('https://i.postimg.cc/yd4v4YHG/EZ-LOGO-31.png')", backgroundSize: '120px auto'}}
-                ></div>
-            </div>
-            <div className="relative z-10">
-                <Navbar user={user} setPage={setPage} currentPage={page} />
-                <main className="p-4 sm:p-8">
-                    {page === 'login' && <AuthPage setPage={setPage} />}
-                    {page === 'form' && user && <RentalForm user={user} />}
-                    {page === 'history' && user && <HistoryPage user={user} />}
-                </main>
-                <Footer />
-            </div>
-        </div>
-    );
-}
-
-// Navbar Component
-function Navbar({ user, setPage, currentPage }) {
-    const handleLogout = async () => {
-        await signOut(auth);
-        setPage('login');
-    };
-
-    return (
-        <header className="bg-white/80 backdrop-blur-lg shadow-md sticky top-0 z-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                    <div className="flex-shrink-0">
-                        <img src="https://i.postimg.cc/VvSyGkBV/EZ-LOGO-08.png" alt="EZ Maya Logo" className="h-12 w-auto" />
-                    </div>
-                    <nav className="flex items-center space-x-4">
-                        {user ? (
-                            <>
-                                <button onClick={() => setPage('form')} className={`px-3 py-2 rounded-md text-sm font-semibold ${currentPage === 'form' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
-                                    Đăng Ký Mới
-                                </button>
-                                <button onClick={() => setPage('history')} className={`px-3 py-2 rounded-md text-sm font-semibold ${currentPage === 'history' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}>
-                                    Lịch Sử
-                                </button>
-                                <div className="text-sm text-gray-500 hidden sm:block">{user.email}</div>
-                                <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">
-                                    Đăng Xuất
-                                </button>
-                            </>
-                        ) : (
-                            <button onClick={() => setPage('login')} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
-                                Đăng Nhập
-                            </button>
-                        )}
-                    </nav>
-                </div>
-            </div>
-        </header>
-    );
-}
-
-// Auth Page (Login/Register) Component
-function AuthPage({ setPage }) {
-    const [isLogin, setIsLogin] = React.useState(true);
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [error, setError] = React.useState('');
-    const [loading, setLoading] = React.useState(false);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        try {
-            if (isLogin) {
-                await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Create a user document in Firestore
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    email: userCredential.user.email,
-                    createdAt: serverTimestamp()
-                });
-            }
-            // onAuthStateChanged in App will handle redirect
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="max-w-md mx-auto mt-10">
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-blue-100">
-                <h2 className="text-2xl font-bold text-center text-blue-900 mb-6">
-                    {isLogin ? 'Đăng Nhập' : 'Tạo Tài Khoản'}
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <Input id="email" label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-                    <Input id="password" label="Mật khẩu" subLabel="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <button type="submit" disabled={loading} className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
-                        {loading ? <Spinner /> : (isLogin ? 'Đăng Nhập' : 'Đăng Ký')}
-                    </button>
-                </form>
-                <p className="text-center text-sm mt-6">
-                    {isLogin ? "Chưa có tài khoản?" : "Đã có tài khoản?"}
-                    <button onClick={() => setIsLogin(!isLogin)} className="font-semibold text-blue-600 hover:underline ml-1">
-                        {isLogin ? 'Đăng ký ngay' : 'Đăng nhập'}
-                    </button>
-                </p>
-            </div>
-        </div>
-    );
-}
-
-
-// Rental Form Component
-function RentalForm({ user }) {
-    const [senderInfo, setSenderInfo] = React.useState({ name: '', phone: '', company: '', region: '', taxCode: '' });
-    const [requests, setRequests] = React.useState([createEmptyRequest()]);
-    const [loading, setLoading] = React.useState(false);
-
-    function createEmptyRequest() {
-        return { id: Date.now(), userName: '', imei: '', fromDate: '', toDate: '', country: '', dataPackage: '', budgetCode: '' };
-    }
-
-    const handleAddRequest = () => {
-        setRequests([...requests, createEmptyRequest()]);
-    };
-
-    const handleRemoveRequest = (id) => {
-        if (requests.length > 1) {
-            setRequests(requests.filter(req => req.id !== id));
-        }
-    };
-
-    const handleRequestChange = (id, field, value) => {
-        setRequests(requests.map(req => req.id === id ? { ...req, [field]: value } : req));
-    };
-
-    const handleSenderInfoChange = (field, value) => {
-        setSenderInfo({ ...senderInfo, [field]: value });
-    };
-    
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        // Basic validation
-        if (!senderInfo.name || !senderInfo.phone || !senderInfo.region) {
-            alert("Vui lòng nhập đủ Họ tên, Số điện thoại và Khu vực của người gửi.");
-            setLoading(false);
-            return;
-        }
-
-        const processedRequests = requests.map(req => {
-            const days = calcDays(req.fromDate, req.toDate);
-            const price = calcPrice(req.country, req.dataPackage, days);
-            return { ...req, id: undefined, days, ...price }; // Remove frontend-only ID
-        });
-        
-        const payload = {
-            userId: user.uid,
-            senderInfo: { ...senderInfo, email: user.email },
-            rentalRequests: processedRequests,
-            submissionTime: serverTimestamp(),
-            status: 'Pending'
-        };
-
-        try {
-            await addDoc(collection(db, "submissions"), payload);
-            alert("Thành công! Đơn đăng ký đã được gửi đi. Bạn có thể xem lại trong Lịch sử.");
-            setSenderInfo({ name: '', phone: '', company: '', region: '', taxCode: '' });
-            setRequests([createEmptyRequest()]);
-        } catch (error) {
-            console.error("Error adding document: ", error);
-            alert("Lỗi! Không thể gửi đơn đăng ký. Vui lòng thử lại.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="form-container max-w-4xl mx-auto mt-2">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-blue-100">
-                <h1 className="text-3xl font-extrabold text-center text-blue-900 mb-6 tracking-wide uppercase">
-                    Đơn Đăng Ký Thuê Wifi
-                    <span className="block text-lg font-bold text-blue-600 normal-case tracking-normal">WIFI DEVICE RENTAL REGISTRATION FORM</span>
+    <main>
+        <div class="form-container max-w-4xl mx-auto mt-2">
+            <div class="flex justify-between items-center mb-6">
+                 <h1 class="text-3xl font-extrabold text-center text-blue-900 tracking-wider uppercase">
+                    ĐƠN ĐĂNG KÝ WIFI
+                    <span class="text-lg font-bold label-en uppercase">WIFI RENTAL FORM</span>
                 </h1>
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className="border-b border-gray-200 pb-6 mb-6">
-                        <h2 className="text-xl font-bold text-blue-800 mb-4">Thông Tin Người Gửi (Sender's Info)</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Input id="sender-name" label="Họ tên" subLabel="Sender's Name" value={senderInfo.name} onChange={e => handleSenderInfoChange('name', e.target.value)} required />
-                            <Input id="sender-phone" label="Số điện thoại" subLabel="Phone Number" type="tel" value={senderInfo.phone} onChange={e => handleSenderInfoChange('phone', e.target.value)} required />
-                            <Input id="sender-company" label="Công ty" subLabel="Company" value={senderInfo.company} onChange={e => handleSenderInfoChange('company', e.target.value)} />
-                            <Input id="sender-taxcode" label="Mã số thuế" subLabel="Tax Code" value={senderInfo.taxCode} onChange={e => handleSenderInfoChange('taxCode', e.target.value)} />
-                             <Select id="sender-region" label="Khu vực" subLabel="Region" value={senderInfo.region} onChange={e => handleSenderInfoChange('region', e.target.value)} required>
+                <button id="view-history-btn" title="Xem lịch sử đăng ký" class="bg-blue-100 text-blue-800 hover:bg-blue-200 font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-300 flex items-center gap-2">
+                    <i class="fa-solid fa-history"></i>
+                    <span class="hidden md:inline">Lịch sử</span>
+                </button>
+            </div>
+           
+            <form id="wifi-form" autocomplete="on" novalidate>
+                <fieldset class="border border-slate-300 p-4 rounded-lg mb-8">
+                    <legend class="px-2 text-lg font-bold text-blue-900">
+                        Thông Tin Người Gửi
+                        <span class="label-en text-base">Sender Information</span>
+                    </legend>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-2">
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Họ tên người gửi <span class="label-en">Sender's Name</span></label>
+                            <input type="text" id="sender-name" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Email <span class="label-en">Email</span></label>
+                            <input type="email" id="sender-email" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Số điện thoại <span class="label-en">Phone Number</span></label>
+                            <input type="tel" id="sender-phone" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Công ty <span class="label-en">Company</span></label>
+                            <input type="text" id="sender-company" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Khu vực <span class="label-en">Region</span></label>
+                            <select id="sender-region" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
                                 <option value="">-- Chọn khu vực --</option>
-                                <option value="HN">Hà Nội (HN)</option>
-                                <option value="HCM">Hồ Chí Minh (HCM)</option>
-                            </Select>
+                                <option value="HNO">Hanoi (HNO)</option>
+                                <option value="HQ">Headquarters (HQ)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-blue-800 text-sm font-semibold mb-2">Mã số thuế <span class="label-en">Tax Code</span></label>
+                            <input type="text" id="sender-taxcode" class="w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
+                </fieldset>
 
-                    <div className="space-y-8 mb-8">
-                        {requests.map((req, index) => (
-                            <RentalRequestSection 
-                                key={req.id} 
-                                request={req} 
-                                index={index} 
-                                onChange={handleRequestChange} 
-                                onRemove={handleRemoveRequest}
-                                showRemoveButton={requests.length > 1}
-                            />
-                        ))}
-                    </div>
-
-                    <div className="flex justify-center mb-8">
-                        <button onClick={handleAddRequest} type="button" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 text-md">
-                            + Thêm Đơn Đăng Ký Mới
-                        </button>
-                    </div>
-
-                    <div className="flex justify-center">
-                        <button type="submit" disabled={loading} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center justify-center gap-3 w-64">
-                            {loading ? <Spinner /> : "Gửi Yêu Cầu"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-}
-
-// Single Rental Request Section Component
-function RentalRequestSection({ request, index, onChange, onRemove, showRemoveButton }) {
-    const days = calcDays(request.fromDate, request.toDate);
-    const price = calcPrice(request.country, request.dataPackage, days);
-
-    return (
-        <section className="bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-200 relative">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-blue-800">Đơn {index + 1} <span className="font-semibold text-base text-blue-600">(Request {index + 1})</span></h3>
-                {showRemoveButton && (
-                    <button type="button" onClick={() => onRemove(request.id)} className="text-red-500 hover:text-red-700 font-semibold text-sm">
-                        Xóa
+                <div id="rental-requests-container" class="space-y-8 mb-8"></div>
+                
+                <div class="flex justify-center mb-8">
+                    <button id="add-request-btn" type="button" class="bg-white hover:bg-red-50 text-red-600 border-2 border-red-500 font-semibold py-3 px-6 rounded-lg shadow-sm transition duration-300 text-md flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        Thêm đơn đăng ký mới
+                        <span class="label-en text-red-500/90">+ Add new rental request</span>
                     </button>
-                )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input id={`user-name-${request.id}`} label="Tên người dùng" subLabel="User Name" value={request.userName} onChange={e => onChange(request.id, 'userName', e.target.value)} required />
-                <Input id={`imei-${request.id}`} label="IMEI" subLabel="(Optional)" value={request.imei} onChange={e => onChange(request.id, 'imei', e.target.value)} />
-                {/* FIX: Use `|| ''` to prevent passing null/undefined to the value prop of the date input */}
-                <Input id={`from-date-${request.id}`} label="Từ ngày" subLabel="From date" type="date" value={request.fromDate || ''} onChange={e => onChange(request.id, 'fromDate', e.target.value)} required />
-                <Input id={`to-date-${request.id}`} label="Đến ngày" subLabel="To date" type="date" value={request.toDate || ''} onChange={e => onChange(request.id, 'toDate', e.target.value)} required />
-                <Select id={`country-${request.id}`} label="Quốc gia" subLabel="Country" value={request.country} onChange={e => onChange(request.id, 'country', e.target.value)} required>
-                    <option value="">-- Chọn quốc gia --</option>
-                    {COUNTRY_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-                </Select>
-                <Select id={`package-${request.id}`} label="Gói data" subLabel="Data Package" value={request.dataPackage} onChange={e => onChange(request.id, 'dataPackage', e.target.value)} required>
-                    <option value="">-- Chọn gói data --</option>
-                    {PACKAGE_LIST.map(p => <option key={p} value={p}>{p}</option>)}
-                </Select>
-                <div className="md:col-span-2">
-                    <Input id={`budget-code-${request.id}`} label="Mã Thanh Toán" subLabel="Budget Code (Optional)" value={request.budgetCode} onChange={e => onChange(request.id, 'budgetCode', e.target.value)} />
                 </div>
-                {price && (
-                     <div className="price-info md:col-span-2 mt-2 text-sm">
-                        <div className="bg-red-50 text-red-800 font-semibold border border-red-200 rounded-lg p-3">
-                            <p>Đơn giá: {currency(price.unitPrice)} x {days} ngày = {currency(price.total)}</p>
-                            <p>VAT (10%): {currency(price.vat)}</p>
-                            <p className="text-blue-700 font-bold text-base mt-1">Tổng cộng: {currency(price.grandTotal)}</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </section>
-    );
-}
+                
+                <div class="flex justify-center">
+                    <button id="submit-form-btn" type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 text-lg flex items-center gap-3">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span id="submit-text">
+                            Gửi Yêu Cầu
+                            <span class="label-en text-white/90">Submit Request</span>
+                        </span>
+                        <span id="loading-spinner" class="hidden animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
 
-// History Page Component
-function HistoryPage({ user }) {
-    const [submissions, setSubmissions] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        const fetchSubmissions = async () => {
-            if (!user) return;
-            setLoading(true);
-            try {
-                const q = query(
-                    collection(db, "submissions"), 
-                    where("userId", "==", user.uid),
-                    orderBy("submissionTime", "desc")
-                );
-                const querySnapshot = await getDocs(q);
-                const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setSubmissions(subs);
-            } catch (error) {
-                console.error("Error fetching submissions:", error);
-                alert("Could not fetch submission history.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchSubmissions();
-    }, [user]);
-
-    return (
-        <div className="max-w-7xl mx-auto mt-2">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-blue-100">
-                <h1 className="text-3xl font-extrabold text-blue-900 mb-6">Lịch Sử Đăng Ký</h1>
-                {loading ? (
-                    <p>Loading history...</p>
-                ) : submissions.length === 0 ? (
-                    <p>Bạn chưa có đơn đăng ký nào.</p>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-gray-600">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">Ngày Gửi</th>
-                                    <th scope="col" className="px-6 py-3">Người Gửi</th>
-                                    <th scope="col" className="px-6 py-3">Số Lượng Đơn</th>
-                                    <th scope="col" className="px-6 py-3">Tổng Tiền</th>
-                                    <th scope="col" className="px-6 py-3">Trạng Thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {submissions.map(sub => {
-                                    const totalAmount = sub.rentalRequests.reduce((acc, req) => acc + (req.grandTotal || 0), 0);
-                                    return (
-                                        <tr key={sub.id} className="bg-white border-b hover:bg-gray-50">
-                                            <td className="px-6 py-4">{sub.submissionTime?.toDate().toLocaleString('vi-VN')}</td>
-                                            <td className="px-6 py-4 font-medium text-gray-900">{sub.senderInfo.name}</td>
-                                            <td className="px-6 py-4">{sub.rentalRequests.length}</td>
-                                            <td className="px-6 py-4 font-semibold">{currency(totalAmount)}</td>
-                                            <td className="px-6 py-4">
-                                                <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                                                    {sub.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+    <footer>
+        <div class="footer-company-info">
+            <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
+            <div class="en">MAYA VIETNAM CO., LTD</div>
+            <div class="mt-4 space-y-2">
+                <div class="line">
+                    <span class="label">Địa chỉ:</span> Phòng 1630, Tầng 16, DAEHA BUSINESS CENTER, 360 Kim Mã, Giảng Võ, Hà Nội
+                </div>
+                <div class="line">
+                    <span class="label">Hotline:</span> <span style="color:#da1a32;font-weight:bold;">0962 000 650</span> (Tiếng Việt) &nbsp;|&nbsp;
+                    <span style="color:#2563eb;font-weight:bold;">0365 399 288</span> (Tiếng Nhật)
+                </div>
             </div>
         </div>
-    );
-}
+    </footer>
 
-// Footer Component
-function Footer() {
-    return (
-        <footer className="mt-12 mb-4">
-            <div className="max-w-3xl mx-auto text-center text-sm text-gray-600 bg-white/60 p-6 rounded-2xl shadow-md border border-blue-100">
-                <h2 className="font-bold text-lg text-red-600 uppercase">CÔNG TY TNHH MAYA VIETNAM</h2>
-                <p className="font-semibold text-blue-600">MAYA VIETNAM CO., LTD</p>
-                <p className="mt-2">
-                    <span className="font-semibold">Địa chỉ:</span> Phòng 1630, Tầng 16, DAEHA BUSINESS CENTER, 360 Kim Mã, Giảng Võ, Hà Nội
-                </p>
-                <p className="mt-2">
-                    <span className="font-semibold">Hotline:</span>
-                    <span className="text-red-600 font-bold mx-2">0962 000 650</span> (Tiếng Việt) |
-                    <span className="text-blue-600 font-bold mx-2">0365 399 288</span> (Tiếng Nhật)
-                </p>
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div id="history-modal-overlay" class="absolute inset-0 bg-black/60"></div>
+        <div class="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col relative z-10">
+            <div class="flex justify-between items-center p-4 border-b border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Đăng Ký</h2>
+                <button id="close-history-btn" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
             </div>
-        </footer>
-    );
-}
+            <div id="history-list-container" class="p-6 space-y-4 overflow-y-auto">
+                <!-- History items will be injected here -->
+            </div>
+             <div class="flex justify-end p-4 border-t border-slate-200">
+                <button id="clear-history-btn" class="bg-red-100 text-red-700 hover:bg-red-200 font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Xóa Toàn Bộ Lịch Sử
+                </button>
+            </div>
+        </div>
+    </div>
 
-export default App;
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIG ---
+        const PACKAGE_LIST = ["500MB/ngày", "1GB/ngày", "Không giới hạn"];
+        // The PRICE_TABLE object is now expected to be loaded from price-table.js
+        const COUNTRY_LIST = typeof PRICE_TABLE !== 'undefined' ? Object.keys(PRICE_TABLE).sort() : [];
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzI7cFpMrgndZ0e2QNQctclgnhMU_8cIgGaZDjzeWxs9Kpj6f3TQiawcVUBPDMNDfhg/exec';
+        const HISTORY_KEY = 'wifiRentalHistory';
+
+        // --- ELEMENTS ---
+        const form = document.getElementById('wifi-form');
+        const container = document.getElementById('rental-requests-container');
+        const addRequestBtn = document.getElementById('add-request-btn');
+        const submitBtn = document.getElementById('submit-form-btn');
+        const submitText = document.getElementById('submit-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const senderRegionSelect = document.getElementById('sender-region');
+        
+        // History Modal Elements
+        const historyModal = document.getElementById('history-modal');
+        const viewHistoryBtn = document.getElementById('view-history-btn');
+        const closeHistoryBtn = document.getElementById('close-history-btn');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const historyListContainer = document.getElementById('history-list-container');
+        const historyModalOverlay = document.getElementById('history-modal-overlay');
+
+        let requestCounter = 0;
+
+        // --- HELPERS ---
+        const currency = (val) => val ? Number(val).toLocaleString("vi-VN") + " VND" : "N/A";
+        const formatDate = (isoString) => isoString ? new Date(isoString).toLocaleDateString('vi-VN') : 'N/A';
+
+        const calcDays = (from, to) => {
+            if (!from || !to) return 1;
+            const d1 = new Date(from + 'T00:00:00Z');
+            const d2 = new Date(to + 'T00:00:00Z');
+            const ms = d2.getTime() - d1.getTime();
+            if (ms < 0) return 1;
+            return Math.round(ms / 86400000) + 1;
+        };
+
+        const calcPrice = (country, pkg, days) => {
+            if (typeof PRICE_TABLE === 'undefined' || !PRICE_TABLE[country] || !PACKAGE_LIST.includes(pkg) || !days) return null;
+            const unit = PRICE_TABLE[country][pkg];
+            if (unit === undefined) return null;
+            const total = unit * days;
+            const vat = Math.round(total * 0.08); // Assuming 8% VAT as is common now, change to 0.1 for 10%
+            const grandTotal = total + vat;
+            return { days, total, unitPrice: unit, vat, grandTotal };
+        };
+
+        const createCountrySelect = (id) => {
+            let html = `<select id="${id}" class="choices-country w-full" required><option value="">-- Chọn quốc gia --</option>`;
+            html += COUNTRY_LIST.map(c => `<option value="${c}">${c}</option>`).join('');
+            html += `</select>`;
+            return html;
+        };
+
+        const createPackageSelect = (id) => `
+            <select id="${id}" class="package-select w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                <option value="">-- Chọn gói data --</option>
+                <option value="500MB/ngày">500MB/ngày / 500MB/day</option>
+                <option value="1GB/ngày">1GB/ngày / 1GB/day</option>
+                <option value="Không giới hạn">Không giới hạn / Unlimited</option>
+            </select>`;
+
+        // --- CORE LOGIC ---
+        function updatePriceForSection(section) {
+            const country = section.querySelector('.choices-country').value;
+            const pkg = section.querySelector('.package-select').value;
+            const from = section.querySelector('.date-from').value;
+            const to = section.querySelector('.date-to').value;
+            const daysInput = section.querySelector('.days-input');
+            const priceInfo = section.querySelector('.price-info');
+
+            const days = calcDays(from, to);
+            daysInput.value = days;
+            
+            const result = calcPrice(country, pkg, days);
+            
+            if (!country || !pkg || !from || !to) {
+                priceInfo.innerHTML = '';
+                return;
+            }
+
+            if (result && result.unitPrice !== undefined) {
+                priceInfo.innerHTML = `<div class="price-info-highlight">
+                    Đơn giá: ${currency(result.unitPrice)} x ${days} ngày = ${currency(result.total)}<br>
+                    VAT (8%): ${currency(result.vat)}<br>
+                    <span style="color:#1d4ed8;">Tổng cộng: ${currency(result.grandTotal)}</span>
+                </div>`;
+            } else {
+                priceInfo.innerHTML = '<span class="text-red-700 font-semibold">Giá không có sẵn cho lựa chọn này. Vui lòng liên hệ để biết chi tiết.</span>';
+            }
+        }
+        
+        function updateSectionNumbers() {
+            const sections = container.querySelectorAll('section.rental-request');
+            sections.forEach((section, idx) => {
+                const n = idx + 1;
+                section.dataset.requestNumber = n;
+                section.querySelector('h2.request-title').innerHTML = `Đơn ${n} <span class="label-en">Request ${n}</span>`;
+                const removeBtn = section.querySelector('.remove-request-btn');
+                if (removeBtn) removeBtn.style.display = sections.length > 1 ? 'inline-flex' : 'none';
+            });
+            requestCounter = sections.length;
+        }
+
+        function createRentalRequestSection() {
+            requestCounter++;
+            const n = requestCounter;
+            const section = document.createElement('section');
+            section.className = 'rental-request bg-blue-50/70 p-5 rounded-xl shadow-sm border border-blue-200';
+            section.dataset.requestNumber = n;
+
+            section.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="request-title text-xl font-bold text-blue-800">Đơn ${n} <span class="label-en">Request ${n}</span></h2>
+                    <button type="button" class="remove-request-btn text-red-500 hover:text-red-700 font-semibold text-sm items-center gap-1" title="Xóa đơn này" style="display: none;">
+                        <i class="fa-solid fa-times"></i> Xóa
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Tên người dùng <span class="label-en">User Name</span></label>
+                        <input type="text" class="user-name-input w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">IMEI <span class="label-en">IMEI</span></label>
+                        <input type="text" class="imei-input w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Từ ngày <span class="label-en">From date</span></label>
+                        <input type="date" class="date-from w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Đến ngày <span class="label-en">To date</span></label>
+                        <input type="date" class="date-to w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Số ngày sử dụng <span class="label-en">Usage days</span></label>
+                        <input type="number" class="days-input w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-600 bg-slate-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Quốc gia <span class="label-en">Country</span></label>
+                        ${createCountrySelect(`country-${n}`)}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Gói data <span class="label-en">Data Package</span></label>
+                        ${createPackageSelect(`data-package-${n}`)}
+                    </div>
+                     <div class="col-span-1 md:col-span-2">
+                        <label class="block text-blue-800 text-sm font-semibold mb-2">Mã Thanh Toán (Không bắt buộc) <span class="label-en">Budget Code (Optional)</span></label>
+                        <input type="text" class="budget-code-input w-full px-4 py-2 border border-blue-300 rounded-lg text-blue-900 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="price-info col-span-1 md:col-span-2 mt-2 text-blue-900 font-semibold"></div>
+                </div>`;
+            
+            container.appendChild(section);
+            
+            new Choices(section.querySelector('.choices-country'), { 
+                searchEnabled: true, 
+                shouldSort: false,
+                itemSelectText: 'Chọn' 
+            });
+
+            updateSectionNumbers();
+        }
+
+        // --- HISTORY FEATURE ---
+        const getHistory = () => JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        
+        const saveSubmissionToHistory = (payload) => {
+            const history = getHistory();
+            history.unshift(payload); // Add new submission to the top
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 50))); // Keep max 50 entries
+        };
+
+        const renderHistory = () => {
+            historyListContainer.innerHTML = '';
+            const history = getHistory();
+
+            if (history.length === 0) {
+                historyListContainer.innerHTML = `<p class="text-center text-slate-500 py-8">Chưa có lịch sử đăng ký nào.</p>`;
+                clearHistoryBtn.style.display = 'none';
+                return;
+            }
+
+            clearHistoryBtn.style.display = 'flex';
+            history.forEach((submission, index) => {
+                const totalGrandTotal = submission.rentalRequests.reduce((acc, req) => acc + (Number(req.grandTotal) || 0), 0);
+
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `
+                    <div class="history-card-header flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-blue-800">Đăng ký ngày: ${formatDate(submission.submissionTime)}</p>
+                            <p class="text-sm text-slate-600">Công ty: ${submission.globalSenderInfo.company || 'N/A'} - Tổng: ${currency(totalGrandTotal)}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down details-arrow transition-transform"></i>
+                    </div>
+                    <div class="history-card-body">
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-slate-700 mb-2">Thông tin người gửi:</h4>
+                            <ul class="text-sm space-y-1 mb-4">
+                                <li><strong>Họ tên:</strong> ${submission.globalSenderInfo.name}</li>
+                                <li><strong>Email:</strong> ${submission.globalSenderInfo.email}</li>
+                                <li><strong>SĐT:</strong> ${submission.globalSenderInfo.phone}</li>
+                                <li><strong>Mã số thuế:</strong> ${submission.globalSenderInfo.taxCode || 'N/A'}</li>
+                            </ul>
+                            <h4 class="font-bold text-slate-700 mb-2">Chi tiết các đơn:</h4>
+                            <div class="space-y-3">
+                            ${submission.rentalRequests.map(req => `
+                                <div class="p-3 bg-slate-100 rounded-lg text-sm">
+                                    <p class="font-semibold text-blue-700">Đơn ${req.requestNumber}: ${req.userName} - ${req.country}</p>
+                                    <p><strong>IMEI:</strong> ${req.imei}</p>
+                                    <p><strong>Thời gian:</strong> ${formatDate(req.fromDate)} - ${formatDate(req.toDate)} (${req.days} ngày)</p>
+                                    <p><strong>Gói cước:</strong> ${req.dataPackage}</p>
+                                    <p class="font-bold mt-1"><strong>Tổng cộng:</strong> ${currency(req.grandTotal)}</p>
+                                </div>
+                            `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                historyListContainer.appendChild(card);
+            });
+        };
+
+        const openHistoryModal = () => {
+            renderHistory();
+            historyModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeHistoryModal = () => {
+            historyModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        };
+
+        const handleClearHistory = () => {
+             Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Toàn bộ lịch sử đăng ký trên trình duyệt này sẽ bị xóa vĩnh viễn!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Vâng, xóa hết!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem(HISTORY_KEY);
+                    renderHistory();
+                    Swal.fire('Đã xóa!', 'Lịch sử đăng ký của bạn đã được xóa.', 'success');
+                }
+            });
+        };
+        
+        // --- EVENT LISTENERS ---
+        addRequestBtn.addEventListener('click', createRentalRequestSection);
+        
+        container.addEventListener('change', (e) => {
+            if (e.target.matches('.choices-country, .package-select, .date-from, .date-to')) {
+                const section = e.target.closest('section.rental-request');
+                if (section) updatePriceForSection(section);
+            }
+        });
+
+        container.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-request-btn')) {
+                const section = e.target.closest('section.rental-request');
+                if (section) {
+                    const choicesInstance = section.querySelector('.choices-country').choices;
+                    if (choicesInstance) choicesInstance.destroy();
+                    section.remove();
+                    updateSectionNumbers();
+                }
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const setSubmitState = (enabled) => {
+                submitBtn.disabled = !enabled;
+                loadingSpinner.classList.toggle('hidden', !enabled);
+                submitText.parentElement.classList.toggle('opacity-0', !enabled);
+                if(enabled) {
+                    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                } else {
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                }
+            };
+
+            setSubmitState(false);
+
+            const senderInfo = {
+                name: document.getElementById('sender-name').value.trim(),
+                email: document.getElementById('sender-email').value.trim(),
+                phone: document.getElementById('sender-phone').value.trim(),
+                company: document.getElementById('sender-company').value.trim(),
+                region: senderRegionSelect.value.trim(),
+                taxCode: document.getElementById('sender-taxcode').value.trim()
+            };
+
+            if (!senderInfo.name || !senderInfo.email || !senderInfo.phone || !senderInfo.region) {
+                Swal.fire("Thiếu thông tin", "Vui lòng nhập đủ Họ tên, Email, Số điện thoại và Khu vực của người gửi.", "warning");
+                setSubmitState(true);
+                return;
+            }
+
+            const rentalRequests = [];
+            let isFormValid = true;
+            const sections = container.querySelectorAll('section.rental-request');
+
+            if (sections.length === 0) {
+                 Swal.fire("Chưa có đơn", "Vui lòng thêm ít nhất một đơn đăng ký.", "warning");
+                 setSubmitState(true);
+                 return;
+            }
+
+            sections.forEach(section => {
+                const country = section.querySelector('.choices-country').value;
+                const pkg = section.querySelector('.package-select').value;
+                const from = section.querySelector('.date-from').value;
+                const to = section.querySelector('.date-to').value;
+                const days = calcDays(from, to);
+                const price = calcPrice(country, pkg, days);
+
+                const request = {
+                    requestNumber: section.dataset.requestNumber,
+                    userName: section.querySelector('.user-name-input').value.trim(),
+                    imei: section.querySelector('.imei-input').value.trim(),
+                    fromDate: from,
+                    toDate: to,
+                    days: days,
+                    country: country,
+                    dataPackage: pkg,
+                    budgetCode: section.querySelector('.budget-code-input').value.trim(),
+                    unitPrice: price ? price.unitPrice : "",
+                    total: price ? price.total : "",
+                    vat: price ? price.vat : "",
+                    grandTotal: price ? price.grandTotal : ""
+                };
+
+                if (!request.userName || !request.imei || !request.fromDate || !request.toDate || !request.country || !request.dataPackage) {
+                    isFormValid = false;
+                }
+                rentalRequests.push(request);
+            });
+
+            if (!isFormValid) {
+                Swal.fire("Thiếu thông tin", "Vui lòng điền đầy đủ thông tin cho tất cả các đơn đăng ký.", "warning");
+                setSubmitState(true);
+                return;
+            }
+
+            const payload = {
+                globalSenderInfo: senderInfo,
+                rentalRequests,
+                submissionTime: new Date().toISOString()
+            };
+            
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                saveSubmissionToHistory(payload); // Save on success
+                
+                await Swal.fire({
+                    title: "Thành công!", 
+                    html: "Đơn đăng ký đã được gửi đi.<br>Vui lòng kiểm tra email để xem báo giá chi tiết.", 
+                    icon: "success",
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                form.reset();
+                container.innerHTML = '';
+                createRentalRequestSection();
+                
+            } catch (err) {
+                Swal.fire("Lỗi", "Không thể gửi đơn đăng ký. Vui lòng kiểm tra kết nối mạng và thử lại.", "error");
+            } finally {
+                setSubmitState(true);
+            }
+        });
+
+        // History Modal Listeners
+        viewHistoryBtn.addEventListener('click', openHistoryModal);
+        closeHistoryBtn.addEventListener('click', closeHistoryModal);
+        historyModalOverlay.addEventListener('click', closeHistoryModal);
+        clearHistoryBtn.addEventListener('click', handleClearHistory);
+        historyListContainer.addEventListener('click', (e) => {
+            const header = e.target.closest('.history-card-header');
+            if (header) {
+                header.parentElement.classList.toggle('open');
+            }
+        });
+
+        // --- INITIALIZE ---
+        if (typeof PRICE_TABLE === 'undefined') {
+            console.error("PRICE_TABLE is not defined. Please make sure price-table.js is loaded correctly and defines the PRICE_TABLE constant.");
+            Swal.fire("Lỗi cấu hình", "Không thể tải bảng giá. Vui lòng liên hệ quản trị viên.", "error");
+        } else {
+            createRentalRequestSection();
+        }
+    });
+    </script>
+</body>
+</html>
