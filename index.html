@@ -360,11 +360,10 @@
             new Choices(selectElem, { searchEnabled: true, shouldSort: false, itemSelectText: 'Chọn' });
         }
 
-        // ===============================================
-        // HÀM XUẤT PDF (ĐÃ CHUẨN BỊ KỸ ĐỂ KHÔNG BỊ TRẮNG)
-        // ===============================================
-        async function exportToPDF() {
-            const t = translations[currentLang];
+        // ==============================================================
+        // HÀM XUẤT PDF ĐÃ SỬA LỖI TRẮNG TRANG VÀ "INVALID ELEMENT"
+        // ==============================================================
+        function exportToPDF() {
             const companyName = document.getElementById('sender-company').value || ".......................................................";
             const customerName = document.getElementById('sender-name').value || ".......................................................";
             
@@ -424,27 +423,42 @@
             const dateStr = `${String(dateNow.getDate()).padStart(2, '0')}/${String(dateNow.getMonth() + 1).padStart(2, '0')}/${dateNow.getFullYear()}`;
             const quoteNo = `${String(dateNow.getDate()).padStart(2, '0')}${String(dateNow.getMonth() + 1).padStart(2, '0')}${dateNow.getFullYear()}/MV`;
 
-            const template = document.createElement('div');
-            template.innerHTML = `
+            // 1. Tạo 1 container thực thụ trên DOM thay vì tạo biến ẩn
+            let container = document.getElementById('pdf-export-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'pdf-export-container';
+                // Đẩy thẻ này ra xa màn hình để người dùng không thấy
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '-9999px';
+                container.style.width = '800px'; 
+                container.style.backgroundColor = '#ffffff';
+                document.body.appendChild(container);
+            }
+
+            // 2. Gắn nội dung
+            container.innerHTML = `
                 <style>
-                    .pdf-container { font-family: 'Times New Roman', Times, serif; font-size: 14px; color: #333; line-height: 1.4; width: 100%; background: white; }
-                    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
+                    .pdf-container { font-family: 'Times New Roman', Times, serif; font-size: 14px; color: #333; line-height: 1.4; width: 100%; background: white; padding: 20px;}
+                    .pdf-container * { box-sizing: border-box; }
+                    .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
                     .company-info h2 { margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a; }
                     .company-info p { margin: 2px 0; font-size: 13px; }
                     .quote-title { text-align: right; }
                     .quote-title h1 { margin: 0 0 5px 0; font-size: 22px; color: #dc2626; }
                     .quote-title p { margin: 2px 0; font-style: italic; }
                     .en-text { font-style: italic; color: #555; display: block; margin-top: 2px; }
-                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
-                    th { background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px; }
+                    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+                    .pdf-table th { background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px; }
                     .totals-table { width: 50%; float: right; margin-bottom: 30px; border: none; }
                     .totals-table td { border: none; padding: 4px; }
-                    .section-title { font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline; }
+                    .pdf-section-title { font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline; }
                     .notes-list { padding-left: 20px; margin: 5px 0 15px 0; font-size: 13px; }
                     .notes-list li { margin-bottom: 8px; list-style-type: disc; }
                 </style>
                 <div class="pdf-container">
-                    <div class="header">
+                    <div class="pdf-header">
                         <div class="company-info">
                             <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
                             <h2>MAYA VIETNAM CO., LTD</h2>
@@ -467,9 +481,9 @@
                         Chúng tôi xin gửi đến Quý khách bảng Báo giá với các thông tin chi tiết như sau:
                         <span class="en-text">MAYA VIETNAM would like to give a sincere thanks for your interest in our product and service!<br>We would like to send you the Quotation with the following details:</span>
                     </div>
-                    <div class="section-title">1. Bảng giá dịch vụ cho thuê thiết bị wifi:</div>
+                    <div class="pdf-section-title">1. Bảng giá dịch vụ cho thuê thiết bị wifi:</div>
                     <div class="en-text" style="margin-bottom: 10px;">Price list for rental of wifi equipment:</div>
-                    <table>
+                    <table class="pdf-table">
                         <thead>
                             <tr>
                                 <th width="5%">STT<br><span class="en-text">No.</span></th>
@@ -499,7 +513,7 @@
                             <li>Trường hợp sử dụng thiết bị wifi tại nhiều quốc gia trong 1 ngày, phí sử dụng của ngày đó được tính theo quốc gia có phí mạng cao nhất.<span class="en-text">In case of using wifi device in multiple countries in 1 day, the usage fee for that day is calculated according to the country with the highest data fee.</span></li>
                         </ul>
                     </div>
-                    <div class="section-title">2. Thanh toán / Payment method:</div>
+                    <div class="pdf-section-title">2. Thanh toán / Payment method:</div>
                     <table style="width: 80%; margin-top: 10px; border: none; margin-bottom: 10px;">
                         <tr><td style="border: none; padding: 3px; font-weight: bold;" width="40%">Người thụ hưởng / Beneficiary name:</td><td style="border: none; padding: 3px;">CONG TY TNHH MAYA VIETNAM</td></tr>
                         <tr><td style="border: none; padding: 3px; font-weight: bold;">Số tài khoản / Account number:</td><td style="border: none; padding: 3px;">0071001226890</td></tr>
@@ -521,28 +535,28 @@
                 </div>
             `;
 
-            // === ĐÂY LÀ PHẦN FIX LỖI TRẮNG TRANG ===
-            template.style.position = 'absolute';
-            template.style.top = '-9999px';
-            template.style.left = '-9999px';
-            template.style.width = '800px'; 
-            document.body.appendChild(template);
-
-            const opt = {
-                margin:       [10, 10, 15, 10], 
-                filename:     `Bao_Gia_WIFI_${companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
             document.getElementById('loadingOverlay').classList.add('active');
-            
-            html2pdf().set(opt).from(template).save().then(() => {
-                document.getElementById('loadingOverlay').classList.remove('active');
-                // Xóa đi sau khi xuất xong để dọn dẹp bộ nhớ
-                document.body.removeChild(template);
-            });
+
+            // 3. Đợi 300 mili-giây để trình duyệt Render rồi mới chụp
+            setTimeout(() => {
+                const opt = {
+                    margin:       [10, 10, 15, 10], 
+                    filename:     `Bao_Gia_WIFI_${companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(container).save().then(() => {
+                    document.getElementById('loadingOverlay').classList.remove('active');
+                    // Xóa nội dung đi cho nhẹ máy sau khi chụp xong
+                    container.innerHTML = '';
+                }).catch(err => {
+                    console.error(err);
+                    document.getElementById('loadingOverlay').classList.remove('active');
+                    alert("Có lỗi xảy ra khi tạo PDF!");
+                });
+            }, 300);
         }
 
         // ===== KHỞI TẠO =====
