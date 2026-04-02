@@ -10,10 +10,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <script src="./price-table.js"></script> 
+    <script src="./export-pdf.js"></script> 
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,19 +40,16 @@
         #add-request-btn { background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%); color: white; padding: 0.8rem 1.75rem; box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25); border: none; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
         #submit-form-btn { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: #ffffff; padding: 0.9rem 2rem; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(237, 137, 54, 0.25); min-width: 180px; border: none; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
         .footer-company-info { font-size: 0.9rem; background: linear-gradient(135deg, #f9fafb 0%, #edf2f7 100%); color: #2d3748; border-radius: 12px; box-shadow: 0 4px 12px rgba(51, 102, 153, 0.1); padding: 1.5rem 2rem; margin: 2.5rem auto 1.5rem auto; text-align: center; max-width: 700px; border-top: 3px solid #3182ce; position: relative; z-index: 3; }
-        
         .loading-overlay, .success-screen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
         .loading-overlay.active, .success-screen.active { display: flex; }
         .loading-box, .success-box { background: white; border-radius: 20px; padding: 3rem 2rem; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: slideUp 0.4s ease; }
         .spinner { width: 50px; height: 50px; margin: 0 auto 1.5rem; border: 4px solid #e0e4f8; border-top: 4px solid #3182ce; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
         .insurance-wrapper { display: flex; align-items: center; gap: 12px; background: #fffafa; padding: 14px 18px; border-radius: 8px; border: 1px solid #fcb7b7; cursor: pointer; transition: all 0.3s ease; margin-top: 8px; }
         .insurance-wrapper:hover { background: #ffebeb; }
         .insurance-wrapper input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #dc2626; }
         .insurance-wrapper label { cursor: pointer; margin-bottom: 0; font-weight: 600; color: #374151; }
-
         .price-preview-box { background-color: transparent; border: 1px dashed #73a9e8; border-radius: 8px; padding: 18px 24px; margin-top: 24px; font-size: 0.95rem; display: none; }
         .price-preview-box.active { display: block; }
         .price-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: #4b5563; }
@@ -360,169 +357,6 @@
             new Choices(selectElem, { searchEnabled: true, shouldSort: false, itemSelectText: 'Chọn' });
         }
 
-        // ==============================================================
-        // HÀM XUẤT PDF (TRUYỀN TRỰC TIẾP CHUỖI HTML ĐỂ FIX LỖI)
-        // ==============================================================
-        function exportToPDF() {
-            const companyName = document.getElementById('sender-company').value || ".......................................................";
-            const customerName = document.getElementById('sender-name').value || ".......................................................";
-            
-            let rowsHtml = '';
-            let totalSub = 0;
-            
-            const requests = document.querySelectorAll('.rental-request');
-            let validCount = 0;
-
-            requests.forEach((req, index) => {
-                const country = req.querySelector('.choices-country').value;
-                const pkg = req.querySelector('.package-select').value;
-                const days = parseInt(req.querySelector('.days-input').value) || 0;
-                const hasInsurance = req.querySelector('.insurance-checkbox').checked;
-                const fromDateStr = req.querySelector('.date-from').value;
-                const toDateStr = req.querySelector('.date-to').value;
-                
-                if (!country || !pkg || days <= 0) return;
-                validCount++;
-                
-                let unitPrice = 0;
-                if (typeof getPriceForUnit === 'function') {
-                    unitPrice = getPriceForUnit(UNIT_NAME, country, pkg);
-                }
-                
-                const rentalFee = unitPrice * days;
-                const insuranceFee = hasInsurance ? (INSURANCE_FEE_PER_DAY * days) : 0;
-                const lineTotal = rentalFee + insuranceFee;
-                totalSub += lineTotal;
-
-                const fd = new Date(fromDateStr).toLocaleDateString('vi-VN');
-                const td = new Date(toDateStr).toLocaleDateString('vi-VN');
-                
-                rowsHtml += `
-                    <tr>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: center;">${index + 1}</td>
-                        <td style="border: 1px solid #000; padding: 8px;">${country}</td>
-                        <td style="border: 1px solid #000; padding: 8px;">${pkg}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: center;">1</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: center; font-size: 11px;">${fd}<br>~<br>${td}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: center;">${days}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatMoney(unitPrice)}</td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatMoney(insuranceFee)}<br><span style="font-style: italic; color: #555; font-size: 10px;">${hasInsurance ? 'Insurance' : ''}</span></td>
-                        <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">${formatMoney(lineTotal)}</td>
-                    </tr>
-                `;
-            });
-
-            if (validCount === 0) {
-                alert(currentLang === 'vi' ? "Vui lòng điền đủ thông tin Quốc gia, Gói dữ liệu và Ngày thuê để xuất báo giá." : "Please fill in Country, Package, and Dates to export quote.");
-                return;
-            }
-
-            const vat = totalSub * 0.1;
-            const grandTotal = totalSub + vat;
-            const dateNow = new Date();
-            const dateStr = `${String(dateNow.getDate()).padStart(2, '0')}/${String(dateNow.getMonth() + 1).padStart(2, '0')}/${dateNow.getFullYear()}`;
-            const quoteNo = `${String(dateNow.getDate()).padStart(2, '0')}${String(dateNow.getMonth() + 1).padStart(2, '0')}${dateNow.getFullYear()}/MV`;
-
-            // TRUYỀN THẲNG CHUỖI HTML VÀO THƯ VIỆN, KHÔNG DÙNG DOM
-            const htmlString = `
-                <div style="font-family: 'Times New Roman', Times, serif; font-size: 14px; color: #333; line-height: 1.4; width: 800px; padding: 20px; background: white; box-sizing: border-box;">
-                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a;">CÔNG TY TNHH MAYA VIETNAM</h2>
-                            <h2 style="margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a;">MAYA VIETNAM CO., LTD</h2>
-                            <p style="margin: 2px 0; font-size: 13px;">Tầng 3, Tòa nhà ACM, 96 Cao Thắng, Phường Bàn Cờ, HCM</p>
-                            <p style="margin: 2px 0; font-size: 13px;">3rd Floor, ACM Building, 96 Cao Thang, Ban Co Ward, HCM</p>
-                            <p style="margin: 2px 0; font-size: 13px;">SĐT / TEL: 096 200 0650</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <h1 style="margin: 0 0 5px 0; font-size: 22px; color: #dc2626;">BÁO GIÁ THUÊ WIFI<br><span style="font-size: 18px;">WIFI RENTAL QUOTATION</span></h1>
-                            <p style="margin: 2px 0; font-style: italic;">Ngày/Date: ${dateStr}</p>
-                            <p style="margin: 2px 0; font-style: italic;">Số/No.: ${quoteNo}</p>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 20px; font-size: 15px;">
-                        Kính gửi / Bill to: <strong style="font-size: 16px;">${companyName}</strong><br>
-                        Người liên hệ / Contact: <strong>${customerName}</strong>
-                    </div>
-                    <div style="margin-bottom: 20px; font-style: italic;">
-                        MAYA VIETNAM xin chân thành cảm ơn Quý khách hàng đã quan tâm đến sản phẩm và dịch vụ của công ty chúng tôi!<br>
-                        Chúng tôi xin gửi đến Quý khách bảng Báo giá với các thông tin chi tiết như sau:
-                        <span style="font-style: italic; color: #555; display: block; margin-top: 2px;">MAYA VIETNAM would like to give a sincere thanks for your interest in our product and service!<br>We would like to send you the Quotation with the following details:</span>
-                    </div>
-                    <div style="font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline;">1. Bảng giá dịch vụ cho thuê thiết bị wifi:</div>
-                    <div style="font-style: italic; color: #555; margin-bottom: 10px;">Price list for rental of wifi equipment:</div>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
-                        <thead>
-                            <tr>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">STT<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">No.</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Quốc gia<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Country</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Dung lượng<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Package</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">SL<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Qty</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Thời gian SD<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Period</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">Ngày<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Days</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Đơn giá<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Price</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="10%">Phí khác<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Fees</span></th>
-                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Thành tiền<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Amount</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
-                    <table style="width: 50%; float: right; margin-bottom: 30px; border: none;">
-                        <tr><td style="text-align: right; font-weight: bold; border: none; padding: 4px;" width="60%">Cộng tiền / Subtotal:</td><td style="text-align: right; border: none; padding: 4px;">${formatMoney(totalSub)}</td></tr>
-                        <tr><td style="text-align: right; font-weight: bold; border: none; padding: 4px;">VAT (10%):</td><td style="text-align: right; border: none; padding: 4px;">${formatMoney(vat)}</td></tr>
-                        <tr><td style="text-align: right; font-weight: bold; color: #dc2626; border: none; padding: 4px;">TỔNG (ĐÃ GỒM THUẾ)<br><span style="font-style: italic; color: #dc2626; display: block; margin-top: 2px;">TOTAL (INC. TAX)</span></td><td style="text-align: right; font-weight: bold; color: #dc2626; font-size: 16px; border: none; padding: 4px;">${formatMoney(grandTotal)}</td></tr>
-                    </table>
-                    <div style="clear: both;"></div>
-                    <div style="margin-top: 10px;">
-                        <strong>Lưu ý / Note:</strong>
-                        <ul style="padding-left: 20px; margin: 5px 0 15px 0; font-size: 13px;">
-                            <li style="margin-bottom: 8px; list-style-type: disc;">Thời gian thuê không tính ngày Giao và Trả thiết bị;<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">The rental period does not include the date of delivery and return of equipment;</span></li>
-                            <li style="margin-bottom: 8px; list-style-type: disc;">Phí giao nhận thiết bị phụ thuộc vào biểu phí của của đơn vị vận chuyển;<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Delivery fee is based on the fee of delivery companies;</span></li>
-                            <li style="margin-bottom: 8px; list-style-type: disc;">Trường hợp sử dụng thiết bị wifi tại nhiều quốc gia trong 1 ngày, phí sử dụng của ngày đó được tính theo quốc gia có phí mạng cao nhất.<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">In case of using wifi device in multiple countries in 1 day, the usage fee for that day is calculated according to the country with the highest data fee.</span></li>
-                        </ul>
-                    </div>
-                    <div style="font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline;">2. Thanh toán / Payment method:</div>
-                    <table style="width: 80%; margin-top: 10px; border: none; margin-bottom: 10px;">
-                        <tr><td style="border: none; padding: 3px; font-weight: bold;" width="40%">Người thụ hưởng / Beneficiary name:</td><td style="border: none; padding: 3px;">CONG TY TNHH MAYA VIETNAM</td></tr>
-                        <tr><td style="border: none; padding: 3px; font-weight: bold;">Số tài khoản / Account number:</td><td style="border: none; padding: 3px;">0071001226890</td></tr>
-                        <tr><td style="border: none; padding: 3px; font-weight: bold;">Ngân hàng / Bank name:</td><td style="border: none; padding: 3px;">Ngân hàng Ngoại thương Việt Nam (Vietcombank)</td></tr>
-                        <tr><td style="border: none; padding: 3px; font-weight: bold;">Chi nhánh / Branch:</td><td style="border: none; padding: 3px;">Chi nhánh thành phố Hồ Chí Minh</td></tr>
-                    </table>
-                    <div style="text-align: center; margin-top: 30px; font-style: italic; font-weight: bold;">
-                        Xin chân thành cảm ơn Quý khách hàng đã tin tưởng sử dụng dịch vụ của chúng tôi!
-                        <span style="font-style: normal; color: #555; display: block; margin-top: 2px;">Sincere thanks to you for choosing our service!</span>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; margin-top: 30px; text-align: center;">
-                        <div style="width: 200px;">
-                            <p style="font-weight: bold; margin: 0;">Người lập</p>
-                            <p style="font-style: italic; color: #555; display: block; margin-top: 2px; font-size: 12px; margin-top: 0;">Prepared by</p>
-                            <div style="height: 70px;"></div>
-                            <p style="font-weight: bold; margin: 0;">ĐỒNG QUANG HUY</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('loadingOverlay').classList.add('active');
-
-            const opt = {
-                margin:       [10, 10, 15, 10], 
-                filename:     `Bao_Gia_WIFI_${companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Gọi hàm xử lý HTML chuỗi trực tiếp
-            html2pdf().set(opt).from(htmlString).save().then(() => {
-                document.getElementById('loadingOverlay').classList.remove('active');
-            }).catch(err => {
-                console.error(err);
-                document.getElementById('loadingOverlay').classList.remove('active');
-                alert("Lỗi tạo PDF: " + err.message);
-            });
-        }
-
         // ===== KHỞI TẠO =====
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -537,7 +371,14 @@
             document.getElementById('add-request-btn').addEventListener('click', addRentalRequest);
             addRentalRequest(); 
             
-            document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
+            // LẮNG NGHE SỰ KIỆN TỪ FILE JS BÊN NGOÀI
+            document.getElementById('export-pdf-btn').addEventListener('click', () => {
+                if (typeof exportToPDF === 'function') {
+                    exportToPDF();
+                } else {
+                    alert('Lỗi: Chưa tải được file export-pdf.js!');
+                }
+            });
 
             document.getElementById('wifi-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
