@@ -361,7 +361,7 @@
         }
 
         // ==============================================================
-        // HÀM XUẤT PDF ĐÃ SỬA LỖI TRẮNG TRANG VÀ "INVALID ELEMENT"
+        // HÀM XUẤT PDF (TRUYỀN TRỰC TIẾP CHUỖI HTML ĐỂ FIX LỖI)
         // ==============================================================
         function exportToPDF() {
             const companyName = document.getElementById('sender-company').value || ".......................................................";
@@ -423,53 +423,21 @@
             const dateStr = `${String(dateNow.getDate()).padStart(2, '0')}/${String(dateNow.getMonth() + 1).padStart(2, '0')}/${dateNow.getFullYear()}`;
             const quoteNo = `${String(dateNow.getDate()).padStart(2, '0')}${String(dateNow.getMonth() + 1).padStart(2, '0')}${dateNow.getFullYear()}/MV`;
 
-            // 1. Tạo 1 container thực thụ trên DOM thay vì tạo biến ẩn
-            let container = document.getElementById('pdf-export-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'pdf-export-container';
-                // Đẩy thẻ này ra xa màn hình để người dùng không thấy
-                container.style.position = 'absolute';
-                container.style.top = '0';
-                container.style.left = '-9999px';
-                container.style.width = '800px'; 
-                container.style.backgroundColor = '#ffffff';
-                document.body.appendChild(container);
-            }
-
-            // 2. Gắn nội dung
-            container.innerHTML = `
-                <style>
-                    .pdf-container { font-family: 'Times New Roman', Times, serif; font-size: 14px; color: #333; line-height: 1.4; width: 100%; background: white; padding: 20px;}
-                    .pdf-container * { box-sizing: border-box; }
-                    .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                    .company-info h2 { margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a; }
-                    .company-info p { margin: 2px 0; font-size: 13px; }
-                    .quote-title { text-align: right; }
-                    .quote-title h1 { margin: 0 0 5px 0; font-size: 22px; color: #dc2626; }
-                    .quote-title p { margin: 2px 0; font-style: italic; }
-                    .en-text { font-style: italic; color: #555; display: block; margin-top: 2px; }
-                    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
-                    .pdf-table th { background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px; }
-                    .totals-table { width: 50%; float: right; margin-bottom: 30px; border: none; }
-                    .totals-table td { border: none; padding: 4px; }
-                    .pdf-section-title { font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline; }
-                    .notes-list { padding-left: 20px; margin: 5px 0 15px 0; font-size: 13px; }
-                    .notes-list li { margin-bottom: 8px; list-style-type: disc; }
-                </style>
-                <div class="pdf-container">
-                    <div class="pdf-header">
-                        <div class="company-info">
-                            <h2>CÔNG TY TNHH MAYA VIETNAM</h2>
-                            <h2>MAYA VIETNAM CO., LTD</h2>
-                            <p>Tầng 3, Tòa nhà ACM, 96 Cao Thắng, Phường Bàn Cờ, HCM</p>
-                            <p>3rd Floor, ACM Building, 96 Cao Thang, Ban Co Ward, HCM</p>
-                            <p>SĐT / TEL: 096 200 0650</p>
+            // TRUYỀN THẲNG CHUỖI HTML VÀO THƯ VIỆN, KHÔNG DÙNG DOM
+            const htmlString = `
+                <div style="font-family: 'Times New Roman', Times, serif; font-size: 14px; color: #333; line-height: 1.4; width: 800px; padding: 20px; background: white; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a;">CÔNG TY TNHH MAYA VIETNAM</h2>
+                            <h2 style="margin: 0 0 5px 0; font-size: 18px; color: #1e3a8a;">MAYA VIETNAM CO., LTD</h2>
+                            <p style="margin: 2px 0; font-size: 13px;">Tầng 3, Tòa nhà ACM, 96 Cao Thắng, Phường Bàn Cờ, HCM</p>
+                            <p style="margin: 2px 0; font-size: 13px;">3rd Floor, ACM Building, 96 Cao Thang, Ban Co Ward, HCM</p>
+                            <p style="margin: 2px 0; font-size: 13px;">SĐT / TEL: 096 200 0650</p>
                         </div>
-                        <div class="quote-title">
-                            <h1>BÁO GIÁ THUÊ WIFI<br><span style="font-size: 18px;">WIFI RENTAL QUOTATION</span></h1>
-                            <p>Ngày/Date: ${dateStr}</p>
-                            <p>Số/No.: ${quoteNo}</p>
+                        <div style="text-align: right;">
+                            <h1 style="margin: 0 0 5px 0; font-size: 22px; color: #dc2626;">BÁO GIÁ THUÊ WIFI<br><span style="font-size: 18px;">WIFI RENTAL QUOTATION</span></h1>
+                            <p style="margin: 2px 0; font-style: italic;">Ngày/Date: ${dateStr}</p>
+                            <p style="margin: 2px 0; font-style: italic;">Số/No.: ${quoteNo}</p>
                         </div>
                     </div>
                     <div style="margin-bottom: 20px; font-size: 15px;">
@@ -479,41 +447,41 @@
                     <div style="margin-bottom: 20px; font-style: italic;">
                         MAYA VIETNAM xin chân thành cảm ơn Quý khách hàng đã quan tâm đến sản phẩm và dịch vụ của công ty chúng tôi!<br>
                         Chúng tôi xin gửi đến Quý khách bảng Báo giá với các thông tin chi tiết như sau:
-                        <span class="en-text">MAYA VIETNAM would like to give a sincere thanks for your interest in our product and service!<br>We would like to send you the Quotation with the following details:</span>
+                        <span style="font-style: italic; color: #555; display: block; margin-top: 2px;">MAYA VIETNAM would like to give a sincere thanks for your interest in our product and service!<br>We would like to send you the Quotation with the following details:</span>
                     </div>
-                    <div class="pdf-section-title">1. Bảng giá dịch vụ cho thuê thiết bị wifi:</div>
-                    <div class="en-text" style="margin-bottom: 10px;">Price list for rental of wifi equipment:</div>
-                    <table class="pdf-table">
+                    <div style="font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline;">1. Bảng giá dịch vụ cho thuê thiết bị wifi:</div>
+                    <div style="font-style: italic; color: #555; margin-bottom: 10px;">Price list for rental of wifi equipment:</div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
                         <thead>
                             <tr>
-                                <th width="5%">STT<br><span class="en-text">No.</span></th>
-                                <th width="15%">Quốc gia<br><span class="en-text">Country</span></th>
-                                <th width="15%">Dung lượng<br><span class="en-text">Package</span></th>
-                                <th width="5%">SL<br><span class="en-text">Qty</span></th>
-                                <th width="15%">Thời gian SD<br><span class="en-text">Period</span></th>
-                                <th width="5%">Ngày<br><span class="en-text">Days</span></th>
-                                <th width="15%">Đơn giá<br><span class="en-text">Price</span></th>
-                                <th width="10%">Phí khác<br><span class="en-text">Fees</span></th>
-                                <th width="15%">Thành tiền<br><span class="en-text">Amount</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">STT<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">No.</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Quốc gia<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Country</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Dung lượng<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Package</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">SL<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Qty</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Thời gian SD<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Period</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="5%">Ngày<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Days</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Đơn giá<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Price</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="10%">Phí khác<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Fees</span></th>
+                                <th style="background-color: #f3f4f6; text-align: center; font-weight: bold; border: 1px solid #000; padding: 8px;" width="15%">Thành tiền<br><span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Amount</span></th>
                             </tr>
                         </thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                    <table class="totals-table">
-                        <tr><td style="text-align: right; font-weight: bold;" width="60%">Cộng tiền / Subtotal:</td><td style="text-align: right;">${formatMoney(totalSub)}</td></tr>
-                        <tr><td style="text-align: right; font-weight: bold;">VAT (10%):</td><td style="text-align: right;">${formatMoney(vat)}</td></tr>
-                        <tr><td style="text-align: right; font-weight: bold; color: #dc2626;">TỔNG (ĐÃ GỒM THUẾ)<br><span class="en-text" style="color: #dc2626;">TOTAL (INC. TAX)</span></td><td style="text-align: right; font-weight: bold; color: #dc2626; font-size: 16px;">${formatMoney(grandTotal)}</td></tr>
+                    <table style="width: 50%; float: right; margin-bottom: 30px; border: none;">
+                        <tr><td style="text-align: right; font-weight: bold; border: none; padding: 4px;" width="60%">Cộng tiền / Subtotal:</td><td style="text-align: right; border: none; padding: 4px;">${formatMoney(totalSub)}</td></tr>
+                        <tr><td style="text-align: right; font-weight: bold; border: none; padding: 4px;">VAT (10%):</td><td style="text-align: right; border: none; padding: 4px;">${formatMoney(vat)}</td></tr>
+                        <tr><td style="text-align: right; font-weight: bold; color: #dc2626; border: none; padding: 4px;">TỔNG (ĐÃ GỒM THUẾ)<br><span style="font-style: italic; color: #dc2626; display: block; margin-top: 2px;">TOTAL (INC. TAX)</span></td><td style="text-align: right; font-weight: bold; color: #dc2626; font-size: 16px; border: none; padding: 4px;">${formatMoney(grandTotal)}</td></tr>
                     </table>
                     <div style="clear: both;"></div>
                     <div style="margin-top: 10px;">
                         <strong>Lưu ý / Note:</strong>
-                        <ul class="notes-list">
-                            <li>Thời gian thuê không tính ngày Giao và Trả thiết bị;<span class="en-text">The rental period does not include the date of delivery and return of equipment;</span></li>
-                            <li>Phí giao nhận thiết bị phụ thuộc vào biểu phí của của đơn vị vận chuyển;<span class="en-text">Delivery fee is based on the fee of delivery companies;</span></li>
-                            <li>Trường hợp sử dụng thiết bị wifi tại nhiều quốc gia trong 1 ngày, phí sử dụng của ngày đó được tính theo quốc gia có phí mạng cao nhất.<span class="en-text">In case of using wifi device in multiple countries in 1 day, the usage fee for that day is calculated according to the country with the highest data fee.</span></li>
+                        <ul style="padding-left: 20px; margin: 5px 0 15px 0; font-size: 13px;">
+                            <li style="margin-bottom: 8px; list-style-type: disc;">Thời gian thuê không tính ngày Giao và Trả thiết bị;<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">The rental period does not include the date of delivery and return of equipment;</span></li>
+                            <li style="margin-bottom: 8px; list-style-type: disc;">Phí giao nhận thiết bị phụ thuộc vào biểu phí của của đơn vị vận chuyển;<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">Delivery fee is based on the fee of delivery companies;</span></li>
+                            <li style="margin-bottom: 8px; list-style-type: disc;">Trường hợp sử dụng thiết bị wifi tại nhiều quốc gia trong 1 ngày, phí sử dụng của ngày đó được tính theo quốc gia có phí mạng cao nhất.<span style="font-style: italic; color: #555; display: block; margin-top: 2px;">In case of using wifi device in multiple countries in 1 day, the usage fee for that day is calculated according to the country with the highest data fee.</span></li>
                         </ul>
                     </div>
-                    <div class="pdf-section-title">2. Thanh toán / Payment method:</div>
+                    <div style="font-weight: bold; font-size: 15px; margin: 15px 0 5px 0; text-decoration: underline;">2. Thanh toán / Payment method:</div>
                     <table style="width: 80%; margin-top: 10px; border: none; margin-bottom: 10px;">
                         <tr><td style="border: none; padding: 3px; font-weight: bold;" width="40%">Người thụ hưởng / Beneficiary name:</td><td style="border: none; padding: 3px;">CONG TY TNHH MAYA VIETNAM</td></tr>
                         <tr><td style="border: none; padding: 3px; font-weight: bold;">Số tài khoản / Account number:</td><td style="border: none; padding: 3px;">0071001226890</td></tr>
@@ -522,12 +490,12 @@
                     </table>
                     <div style="text-align: center; margin-top: 30px; font-style: italic; font-weight: bold;">
                         Xin chân thành cảm ơn Quý khách hàng đã tin tưởng sử dụng dịch vụ của chúng tôi!
-                        <span class="en-text" style="font-weight: normal;">Sincere thanks to you for choosing our service!</span>
+                        <span style="font-style: normal; color: #555; display: block; margin-top: 2px;">Sincere thanks to you for choosing our service!</span>
                     </div>
                     <div style="display: flex; justify-content: flex-end; margin-top: 30px; text-align: center;">
                         <div style="width: 200px;">
                             <p style="font-weight: bold; margin: 0;">Người lập</p>
-                            <p class="en-text" style="font-size: 12px; margin-top: 0;">Prepared by</p>
+                            <p style="font-style: italic; color: #555; display: block; margin-top: 2px; font-size: 12px; margin-top: 0;">Prepared by</p>
                             <div style="height: 70px;"></div>
                             <p style="font-weight: bold; margin: 0;">ĐỒNG QUANG HUY</p>
                         </div>
@@ -537,26 +505,22 @@
 
             document.getElementById('loadingOverlay').classList.add('active');
 
-            // 3. Đợi 300 mili-giây để trình duyệt Render rồi mới chụp
-            setTimeout(() => {
-                const opt = {
-                    margin:       [10, 10, 15, 10], 
-                    filename:     `Bao_Gia_WIFI_${companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       [10, 10, 15, 10], 
+                filename:     `Bao_Gia_WIFI_${companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-                html2pdf().set(opt).from(container).save().then(() => {
-                    document.getElementById('loadingOverlay').classList.remove('active');
-                    // Xóa nội dung đi cho nhẹ máy sau khi chụp xong
-                    container.innerHTML = '';
-                }).catch(err => {
-                    console.error(err);
-                    document.getElementById('loadingOverlay').classList.remove('active');
-                    alert("Có lỗi xảy ra khi tạo PDF!");
-                });
-            }, 300);
+            // Gọi hàm xử lý HTML chuỗi trực tiếp
+            html2pdf().set(opt).from(htmlString).save().then(() => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('loadingOverlay').classList.remove('active');
+                alert("Lỗi tạo PDF: " + err.message);
+            });
         }
 
         // ===== KHỞI TẠO =====
